@@ -16,5 +16,9 @@ Route::post('dorecommendations', ['uses' => 'HomeController@doRecommendations', 
 
 Route::get('history', ['uses' => 'HomeController@history', 'as' => 'history']);
 Route::get('tasks', ['uses' => 'HomeController@tasks', 'as' => 'tasks']);
+Route::get('provision', ['uses' => 'ProvisionController@create', 'as' => 'provision']);
+
+Route::post('provision', ['uses' => 'ProvisionController@store', 'as' => 'doProvision']);
+
 Route::get('config', ['uses' => 'HomeController@config', 'as' => 'config']);
 

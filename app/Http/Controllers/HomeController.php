@@ -6,6 +6,7 @@ use App\Node;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
+use Khill\Lavacharts\Lavacharts;
 
 class HomeController extends Controller
 {
@@ -23,7 +24,9 @@ class HomeController extends Controller
 
         $recommendations = Node::makeRecommendations();
 
-        return view('dashboard', compact('nodes', 'recommendations','totalvms'));
+        $status = Node::getClusterStatus();
+
+        return view('dashboard', compact('nodes', 'recommendations','totalvms', 'status'));
     }
 
     public function doRecommendations(Request $request)

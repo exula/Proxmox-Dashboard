@@ -10,57 +10,14 @@ use ProxmoxVE\Proxmox;
 class Node extends Model
 {
     //
-    private static $data = [
-        "cias-proxmox-1" => [
-            "load" => "3.2",
-            "memory" => ".51",
-            "vmcount" => "5"
-        ],
-        "cias-proxmox-2" => [
-            "load" => "15",
-            "memory" => ".90",
-            "vmcount" => "13"
-        ],
-        "cias-proxmox-3" => [
-            "load" => "1",
-            "memory" => ".80",
-            "vmcount" => "13"
-        ],
-        "cias-proxmox-4" => [
-            "load" => "1.2",
-            "memory" => ".31",
-            "vmcount" => "4"
-        ],
-    ];
-
+    private static $data = [];
     private static $alreadyMigrated = [];
 
     public static function getAll()
     {
         //Lets fake some data right now
 
-        $allnodes = \Proxmox::get('/nodes');
-
-        self::$data = [];
-        foreach($allnodes['data'] as $node)
-        {
-
-            $nodeData = \Proxmox::get('/nodes/'.$node['node'].'/qemu/');
-
-
-            self::$data[$node['node']]['load'] = round($node['cpu'],4);
-            self::$data[$node['node']]['memory'] = round(($node['maxmem'] / $node['mem'])/100,4);
-            self::$data[$node['node']]['vmcount'] = 0;
-
-            foreach($nodeData['data'] as $vms)
-            {
-                if($vms['status'] == 'running')
-                {
-                    self::$data[$node['node']]['vmcount']++;
-                }
-            }
-
-        }
+        self::getAllVMS();
 
         $collection = new Collection();
 
@@ -79,6 +36,7 @@ class Node extends Model
         $mAverage = 0;
         $mCount = 0;
         $totalCount = 0;
+
         $collection->each(function($n) use (&$mAverage, &$mCount, &$totalCount) {
             $mAverage += $n->memory;
             $mCount++;
@@ -121,6 +79,156 @@ class Node extends Model
 
     }
 
+    private static function getAllVMS()
+    {
+        $allnodes = \Proxmox::get('/nodes');
+
+        self::$data = [];
+        foreach($allnodes['data'] as $node)
+        {
+
+            $nodeData = \Proxmox::get('/nodes/'.$node['node'].'/qemu/');
+            if(isset($node['cpu'])) {
+                self::$data[$node['node']]['load'] = round($node['cpu'], 4);
+                self::$data[$node['node']]['memory'] = $node['mem'] / $node['maxmem'];
+                self::$data[$node['node']]['vmcount'] = 0;
+
+                foreach ($nodeData['data'] as $vms) {
+                    if ($vms['status'] == 'running') {
+                        self::$data[$node['node']]['vmcount']++;
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    public static function getStorage()
+    {
+        $storage = \Proxmox::get('/storage');
+
+        $ret = [];
+
+        foreach($storage['data'] as $d)
+        {
+            if($d['storage'] != 'local' && stristr('images', $d['content']))
+            {
+                $ret[$d['storage']] = $d['storage'];
+            }
+        }
+
+        return $ret;
+
+    }
+
+    public static function getTemplates()
+    {
+
+        self::getAllVMS();
+        $templates = [];
+        foreach(self::$data as $node => $data)
+        {
+            $nodeData = \Proxmox::get('/nodes/'.$node.'/qemu/');
+
+            foreach($nodeData['data'] as $vms)
+            {
+                if($vms['template'])
+                {
+                    $templates[$vms['vmid']] = $vms['name'];
+                }
+            }
+        }
+
+        return $templates;
+
+    }
+
+    public static function getClusterStatus()
+    {
+        $status = \Proxmox::get('/cluster/resources');
+
+        $cluster = \Proxmox::get('/cluster/status');
+
+        $ha = \Proxmox::get('/cluster/ha/status/current');
+
+        if($ha['data'][0]['status'] == 'OK')
+        {
+            $quorum = true;
+        } else {
+            $quorum = false;
+        }
+
+        $cpu = ['total' => 0, 'used' => 0];
+        $memory = ['total' => 0, 'used' => 0];
+        $disk = ['total' => 0, 'used' => 0];
+        $vms = ['running' => 0, 'paused' => 0, 'stopped' => 0];
+
+        foreach($status['data'] as $stat)
+        {
+            if ($stat['type'] == 'node') {
+
+                if(isset($stat['cpu'])) {
+                    $memory['total'] += $stat['maxmem'];
+                    $memory['used'] += $stat['mem'];
+
+                    $cpu['total'] += $stat['maxcpu'];
+                    $cpu['used'] += $stat['cpu'];
+
+                    $disk['total'] += $stat['maxdisk'];
+                    $disk['used'] += $stat['disk'];
+                }
+            }
+
+            if($stat['type'] == 'qemu')
+            {
+                if($stat['status'] == 'running') {
+                    $vms['running'] += 1;
+                }
+
+                if($stat['status'] == 'paused') {
+                    $vms['paused'] += 1;
+                }
+
+                if($stat['status'] == 'stopped') {
+                    $vms['stopped'] += 1;
+                }
+
+            }
+
+        }
+
+
+        $online = 0;
+        $offline = 0;
+
+        foreach($cluster['data'] as $node)
+        {
+            if($node['type'] == 'node')
+            {
+                if($node['online'] == 1) {
+                    $online += 1;
+                } else {
+                    $offline += 1;
+                }
+            }
+        }
+
+
+        $returnArray = [
+            "cpu" => $cpu,
+            "memory" => $memory,
+            "disk" => $disk,
+            'vms' => $vms,
+            'quorum' => $quorum,
+            'online' => $online,
+            'offline' => $offline
+        ];
+
+        return $returnArray;
+
+    }
+
     public static function makeRecommendations()
     {
 
@@ -157,7 +265,7 @@ class Node extends Model
             {
                 //We need to add vm's
                 $nodeCount["remove"][$node->name] = abs($diff);
-            } elseif ($diff > 1)
+            } elseif ($diff > ($totalVMs % count($nodes)))
             {
                 $nodeCount["add"][$node->name] = abs($diff);
             }
@@ -207,7 +315,7 @@ class Node extends Model
 
         $vms = $vms->sortByDesc('cpu')->filter(function($i) {
             return $i['status'] == 'running';
-        })->slice(0,2);
+        })->slice(0,$howmany);
 
         foreach($vms as $vm)
         {
