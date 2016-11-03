@@ -25,12 +25,15 @@ class Node extends Model
         {
             $node = new Node();
             $node->name = $nodeName;
-            $node->load = $data['load'];
+            $node->load = $data['load']*100;
             $node->memory = $data['memory'];
             $node->vmcount = $data['vmcount'];
 
             $collection->add($node);
         }
+
+
+
 
         //Lets add some weighting to the vmcount
         $mAverage = 0;
@@ -74,8 +77,14 @@ class Node extends Model
         });
 
 
+        $collection = $collection->sortBy(function($obj){
+            $parts = preg_split("/-/", $obj->name);
 
-        return $collection->sortBy('name');
+            return $parts[count($parts)-1];
+
+        });
+
+        return $collection;
 
     }
 
@@ -118,6 +127,8 @@ class Node extends Model
             }
         }
 
+        asort($ret);
+
         return $ret;
 
     }
@@ -135,10 +146,12 @@ class Node extends Model
             {
                 if($vms['template'])
                 {
-                    $templates[$vms['vmid']] = $vms['name'];
+                    $templates[$node."::".$vms['vmid']] = $vms['name'];
                 }
             }
         }
+
+        asort($templates);
 
         return $templates;
 
@@ -164,11 +177,14 @@ class Node extends Model
         $disk = ['total' => 0, 'used' => 0];
         $vms = ['running' => 0, 'paused' => 0, 'stopped' => 0];
 
+        $count = 0;
+
         foreach($status['data'] as $stat)
         {
             if ($stat['type'] == 'node') {
 
                 if(isset($stat['cpu'])) {
+                    $count++;
                     $memory['total'] += $stat['maxmem'];
                     $memory['used'] += $stat['mem'];
 
@@ -179,6 +195,8 @@ class Node extends Model
                     $disk['used'] += $stat['disk'];
                 }
             }
+
+
 
             if($stat['type'] == 'qemu')
             {
@@ -198,6 +216,8 @@ class Node extends Model
 
         }
 
+        $cpu['used'] = $cpu['used'] / $count;
+
 
         $online = 0;
         $offline = 0;
@@ -214,6 +234,16 @@ class Node extends Model
             }
         }
 
+        //Do some work on the cpu and memory so we don't have to do any work on the client  side
+        $cpu['used'] = round($cpu['used'] * 100);
+
+
+        $memory['used'] = round(($memory['used'] / $memory['total']) * 100);
+        $memory['total'] = round($memory['total']/1024/1024/1024);
+
+
+        $disk['used'] = round(($disk['used'] / $disk['total'])*100);
+        $disk['total'] = round($disk['total']/1024/1024/1024);
 
         $returnArray = [
             "cpu" => $cpu,

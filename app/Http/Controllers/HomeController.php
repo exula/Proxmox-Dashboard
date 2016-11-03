@@ -11,22 +11,32 @@ use Khill\Lavacharts\Lavacharts;
 class HomeController extends Controller
 {
     //
-    public function index()
+    public function index(Request $request)
     {
 
-        $nodes = Node::getAll();
+        return view('dashboard', compact('nodes', 'recommendations','totalvms', 'status'));
+    }
 
-        $totalvms = 0;
-        foreach($nodes as $node)
+    public function dashboardData()
+    {
+
+        $return['nodes'] = Node::getAll();
+
+        $return['totalvms'] = 0;
+        foreach($return['nodes'] as $node)
         {
-            $totalvms += $node->vmcount;
+            $return['totalvms'] += $node->vmcount;
         }
 
-        $recommendations = Node::makeRecommendations();
+        $return['nodes'] = array_values($return['nodes']->toArray());
 
-        $status = Node::getClusterStatus();
+        $return['recommendations'] = Node::makeRecommendations();
 
-        return view('dashboard', compact('nodes', 'recommendations','totalvms', 'status'));
+        $return['status'] = Node::getClusterStatus();
+
+        return response()->json($return);
+
+
     }
 
     public function doRecommendations(Request $request)

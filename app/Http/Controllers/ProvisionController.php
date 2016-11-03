@@ -21,14 +21,28 @@ class ProvisionController extends Controller
     public function store(Request $request)
     {
 
+        $templateParts = preg_split("/::/", $request->get('template'));
+
+        $node = $templateParts[0];
+        $template = $templateParts[1];
         $name = $request->get('name');
-        $template = $request->get('template');
         $storage = $request->get('storage');
 
-        dd($template);
+        $idData = \Proxmox::get('/cluster/nextid');
+        $newID = $idData['data'];
+        $data = [
+            "newid" => $newID,
+            "name" => $name,
+            "target" => $node,
+            "full" => 1,
+            "storage" => $storage,
+            "description" => "Provisioned on ".date("m/d/Y")." from the CIAS Proxmox Dashboard"
+        ];
 
+        $url = '/nodes/'.$node."/qemu/".$template."/clone";
+        $clone = \Proxmox::create($url, $data);
 
-
+        return redirect()->route('tasks');
     }
 
 }
