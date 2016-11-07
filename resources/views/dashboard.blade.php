@@ -10,58 +10,61 @@
     <div class="panel-body">
 
         <div class="row">
-            <div class="col-md-3 text-center">
+            <div class="col-md-3 col-sm-6 col-xs-12 text-center">
                 <h2>CPU</h2>
 
-                <div class="chart" id="cpuchart" data-percent="{{ round($status['cpu']['used']*100) }}">
-                    <span class="percent">{{ round($status['cpu']['used']*100) }}
+                <div class="chart" id="cpuchart" data-percent="0">
+                    <span class="percent">0
                     </span>
                 </div>
                 <div>
-                    {{ round($status['cpu']['used']*100) }}% of {{ $status['cpu']['total'] }} CPU(s)
+                    <span id="cpuused">0</span>% of <span id="cputotal"></span> CPU(s)
                 </div>
 
             </div>
-            <div class="col-md-3 text-center">
+            <div class="col-md-3 col-sm-6 col-xs-12 text-center">
                 <h2>Memory</h2>
 
-                <div class="chart" id="memorychart" data-percent="{{ round(($status['memory']['used']/$status['memory']['total'])*100) }}">
+                <div class="chart" id="memorychart" data-percent="0">
                     <span class="percent">
-                        {{ round(($status['memory']['used']/$status['memory']['total'])*100) }}
+                        0
                     </span>
                 </div>
                 <div>
-                    {{ round(($status['memory']['used']/$status['memory']['total'])*100) }}% of {{ round($status['memory']['total']/1024/1024/1024) }} GB
+                   <span id="memoryused">0</span>% of <span id="memorytotal"></span>GB
                 </div>
 
             </div>
-            <div class="col-md-3 text-center">
+            <div class="col-md-3 col-sm-6 col-xs-12 text-center">
                 <h2>Disk</h2>
 
-                <div class="chart" id="diskchart" data-percent="{{ round(($status['disk']['used']/$status['disk']['total'])*100) }}">
+                <div class="chart" id="diskchart" data-percent="0">
                     <span class="percent">
-                        {{ round(($status['disk']['used']/$status['disk']['total'])*100) }}
+                        0
                     </span>
                 </div>
                 <div>
-                    {{ round(($status['disk']['used']/$status['disk']['total'])*100) }}% of {{ round($status['disk']['total']/1024/1024/1024) }} GB
+                    <span id="diskused">0</span>% of <span id="disktotal">0</span> GB
                 </div>
             </div>
 
-            <div class="col-md-3 text-center">
+            <div class="col-md-3 col-sm-6 col-xs-12 text-center">
                 <h2>HA Status</h2>
 
-                @if($status['quorum'] == true)
+                <div id="quorum_success" >
                     <i class="fa fa-5x fa-check-circle text-success"></i>
                     <div>
                         Quorum OK
                     </div>
-                @else
+                </div>
+
+                <div id="quorum_failed" style="display: none">
                     <i class="fa fa-5x fa-exclamation-circle text-danger"></i>
                     <div>
                         Quorum FAILED
                     </div>
-                @endif
+                </div>
+
 
             </div>
 
@@ -101,17 +104,142 @@
 
 <script type="text/javascript">
     window.onload = function() {
+
+
+        getData();
+
+        window.setInterval(getData, 1000);
+
+    };
+
+    function getData()
+    {
+        $.ajax({
+                    "url": '{{ route('dashboardData') }}'
+                }
+        ).success(function(data){
+
+            initEasyPie();
+            updateDashboard(data);
+
+        });
+    }
+
+    function updateDashboard(data)
+    {
+
+        cpuused = data.status.cpu.used;
+        cputotal = data.status.cpu.total;
+
+        $('#cpuchart').data('easyPieChart').update(cpuused);
+        $('#cpuchart').attr("data-percent", cpuused);
+        $('#cpuchart .percent').html(cpuused);
+        $('#cpuused').html(cpuused);
+        $('#cputotal').html(cputotal);
+
+
+        memused = data.status.memory.used;
+        memtotal = data.status.memory.total;
+
+        $('#memorychart').data('easyPieChart').update(memused);
+        $('#memorychart').attr("data-percent", memused);
+        $('#memorychart .percent').html(memused);
+        $('#memoryused').html(memused);
+        $('#memorytotal').html(memtotal);
+
+        diskused = data.status.disk.used;
+        disktotal = data.status.disk.total;
+
+
+        $('#diskchart').data('easyPieChart').update(diskused);
+        $('#diskchart').attr("data-percent", diskused);
+        $('#diskchart .percent').html(diskused);
+        $('#diskused').html(diskused);
+        $('#disktotal').html(memtotal);
+
+        if(data.status.quorum == true)
+        {
+            $("#quorum_success").show();
+            $("#quorum_failed").hide();
+        } else {
+            $("#quorum_success").hide();
+            $("#quorum_failed").show();
+        }
+
+        $('#status_vm_running').html(data.status.vms.running);
+        $('#status_vm_paused').html(data.status.vms.paused);
+        $('#status_vm_stopped').html(data.status.vms.stopped);
+
+        $('#status_online').html(data.status.online);
+        $('#status_offline').html(data.status.offline);
+
+        $('#totalvms').html(data.totalvms);
+
+        updateRecommendations(data);
+
+        updateNodes(data);
+
+
+
+    }
+
+    function updateNodes(data)
+    {
+
+        html = '';
+
+        for ( node in data.nodes)
+        {
+            mynode = data.nodes[node];
+
+            html += '<tr><td><i class="fa fa-server"></i> '+mynode.name+'</td> \
+            <td align="right">'+mynode.load+'%</td> \
+            <td align="right">'+(mynode.memory * 100).toFixed(2)+'%</td> \
+            <td align="right">'+mynode.vmcount+'</td> \
+            </tr>';
+
+        }
+
+        $("#nodestbody").html(html);
+
+    }
+
+    function updateRecommendations(data)
+    {
+
+        html = "<ul>";
+        for( id in data.recommendations)
+        {
+            console.log(data.recommendations[id]);
+
+            html += "<li>"+data.recommendations[id]+"</li>";
+
+        }
+
+        html += "</ul>"
+
+        $("#recommendations").html(html);
+
+        recommendJSON = JSON.stringify(data.recommendations);
+        console.log(recommendJSON);
+        $("#recommendationsjson").val( recommendJSON );
+
+    }
+
+    function initEasyPie()
+    {
         $('#cpuchart').easyPieChart({
             //your configuration goes here
-            animate: 2000,
+            animate: 900,
             barColor: 'green',
             trackColor: '#CCC',
             lineWidth: 10
         });
 
+
         $('#memorychart').easyPieChart({
             //your configuration goes here
-            animate: 2000,
+            animate: 900,
             barColor: 'blue',
             trackColor: '#CCC',
             lineWidth: 10
@@ -119,12 +247,13 @@
 
         $('#diskchart').easyPieChart({
             //your configuration goes here
-            animate: 2000,
+            animate: 900,
             barColor: 'red',
             trackColor: '#CCC',
             lineWidth: 10
         });
-    };
+    }
+
 </script>
 
 
@@ -145,7 +274,7 @@
                                 <i class="fa fa-play-circle text-success"></i> Running
                             </td>
                             <td>
-                                {{ $status['vms']['running'] }}
+                                <span id="status_vm_running">0</span>
                             </td>
                         </tr>
                         <tr>
@@ -153,7 +282,7 @@
                                 <i class="fa fa-play-circle text-danger"></i> Paused
                             </td>
                             <td>
-                                {{ $status['vms']['paused'] }}
+                                <span id="status_vm_paused">0</span>
                             </td>
                         </tr>
                         <tr>
@@ -161,7 +290,7 @@
                                 <i class="fa fa-play-circle text-muted"></i> Stopped
                             </td>
                             <td>
-                                {{ $status['vms']['stopped'] }}
+                                <span id="status_vm_stopped">0</span>
                             </td>
                         </tr>
                     </tbody>
@@ -176,12 +305,12 @@
                         <tr>
                             <td>
                                 <i class="fa fa-check-circle text-success"></i> Online</td>
-                            <td>{{ $status['online'] }}</td>
+                            <td><span id="status_online"></span></td>
                         </tr>
                         <tr>
                             <td>
                                 <i class="fa fa-exclamation-triangle text-danger"></i> Offline</td>
-                            <td>{{ $status['offline'] }}</td>
+                            <td><span id="status_offline"></span></td>
                         </tr>
                     </tbody>
                 </table>
@@ -206,18 +335,15 @@
                 <th align="right">Started VMs</th>
             </tr>
             </thead>
-            @foreach($nodes as $node)
-                <tr>
-                    <td><i class="fa fa-server"></i> {{ $node->name }}</td>
-                    <td align="right">{{ $node->load }}</td>
-                    <td align="right">{{ round($node->memory*100) }}%</td>
-                    <td align="right">{{ $node->vmcount }}</td>
-                </tr>
-            @endforeach
+            <tbody id="nodestbody">
+
+            </tbody>
+            <tfoot>
             <tr>
                 <td colspan="3"></td>
-                <td align="right"><i class="fa fa-tv"></i> <strong>{{ $totalvms }}</strong></td>
+                <td align="right"><i class="fa fa-tv"></i> <strong><span id="totalvms"></span></strong></td>
             </tr>
+            </tfoot>
         </table>
     </div>
 </div>
@@ -228,15 +354,12 @@
         Recommendations
     </div>
     <div class="panel-body">
-        <p>
-            @foreach($recommendations as $r)
-                {{ $r }}
-                <br/>
-            @endforeach
+        <p id="recommendations">
+
         </p>
 
         {!! Form::open(array('route' => 'dorecommendations')) !!}
-        <input type="hidden" name="recommendations" value="{{ json_encode($recommendations) }}">
+        <input type="hidden" id=recommendationsjson name="recommendations" value="">
         <button type="submit">Do Recommendations</button>
         {!! Form::close() !!}
     </div>

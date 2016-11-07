@@ -12,6 +12,9 @@
 */
 
 Route::get('/', ['uses' => 'HomeController@index', 'as' => 'dashboard']);
+
+Route::get('/dashboardData', ['uses' => 'HomeController@dashboardData', 'as' => 'dashboardData']);
+
 Route::post('dorecommendations', ['uses' => 'HomeController@doRecommendations', 'as' => 'dorecommendations']);
 
 Route::get('history', ['uses' => 'HomeController@history', 'as' => 'history']);

@@ -4,15 +4,6 @@
 
     <h1>New VM Provisioning</h1>
 
-    <p>
-        New machines will be deployed from templates that then PXE boot behind NAT.
-    </p>
-    <p>
-        <strong>
-            Machines will need to be registered in CLAWS before they may be moved to production
-        </strong>
-    </p>
-
 
     <div class="panel panel-info">
         <div class="panel-heading">

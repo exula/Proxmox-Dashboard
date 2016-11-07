@@ -36,7 +36,7 @@ class ProvisionController extends Controller
             "target" => $node,
             "full" => 1,
             "storage" => $storage,
-            "description" => "Provisioned on ".date("m/d/Y")." from the CIAS Proxmox Dashboard"
+            "description" => "Provisioned from dashboard: ".date("m/d/Y").""
         ];
 
         $url = '/nodes/'.$node."/qemu/".$template."/clone";
