@@ -155,7 +155,7 @@
         $('#diskchart').attr("data-percent", diskused);
         $('#diskchart .percent').html(diskused);
         $('#diskused').html(diskused);
-        $('#disktotal').html(memtotal);
+        $('#disktotal').html(disktotal);
 
         if(data.status.quorum == true)
         {
