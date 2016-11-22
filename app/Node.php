@@ -90,25 +90,26 @@ class Node extends Model
 
     private static function getAllVMS()
     {
+
         $allnodes = \Proxmox::get('/nodes');
 
         self::$data = [];
-        foreach($allnodes['data'] as $node)
-        {
+        foreach($allnodes['data'] as $node) {
+            if (isset($node['cpu'])) {
+                $nodeData = \Proxmox::get('/nodes/' . $node['node'] . '/qemu/');
+                if (isset($node['cpu'])) {
+                    self::$data[$node['node']]['load'] = round($node['cpu'], 4);
+                    self::$data[$node['node']]['memory'] = $node['mem'] / $node['maxmem'];
+                    self::$data[$node['node']]['vmcount'] = 0;
 
-            $nodeData = \Proxmox::get('/nodes/'.$node['node'].'/qemu/');
-            if(isset($node['cpu'])) {
-                self::$data[$node['node']]['load'] = round($node['cpu'], 4);
-                self::$data[$node['node']]['memory'] = $node['mem'] / $node['maxmem'];
-                self::$data[$node['node']]['vmcount'] = 0;
-
-                foreach ($nodeData['data'] as $vms) {
-                    if ($vms['status'] == 'running') {
-                        self::$data[$node['node']]['vmcount']++;
+                    foreach ($nodeData['data'] as $vms) {
+                        if ($vms['status'] == 'running') {
+                            self::$data[$node['node']]['vmcount']++;
+                        }
                     }
                 }
-            }
 
+            }
         }
 
     }

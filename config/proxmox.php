@@ -7,9 +7,25 @@
  * http://laravel.com/docs/configuration#protecting-sensitive-configuration
  */
 
+
+//We need to determine which hosts are 'up'
+
+$hosts = explode(",", getenv('PROXMOX_HOST'));
+$workingHost = '';
+foreach($hosts as $host)
+$port = getenv('PROXMOX_PORT') ?: 8006;
+$waitTimeoutInSeconds = 1;
+if($fp = fsockopen($host,$port,$errCode,$errStr,$waitTimeoutInSeconds)){
+    // It worked
+    $workingHost = $host;
+} else {
+
+}
+fclose($fp);
+
 return [
     'server' => [
-        'hostname' => getenv('PROXMOX_HOST'),
+        'hostname' => $workingHost,
         'username' => getenv('PROXMOX_USER'),
         'password' => getenv('PROXMOX_PASS'),
         // sensible defaults for these two
