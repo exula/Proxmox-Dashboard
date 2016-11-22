@@ -108,7 +108,7 @@
 
         getData();
 
-        window.setInterval(getData, 1000);
+        window.setInterval(getData, 2000);
 
     };
 
@@ -192,7 +192,13 @@
         {
             mynode = data.nodes[node];
 
-            html += '<tr><td><i class="fa fa-server"></i> '+mynode.name+'</td> \
+            if(mynode.load == 0)
+            {
+                rowclass = "danger";
+            } else {
+                rowclass = "";
+            }
+            html += '<tr class='+rowclass+'><td><i class="fa fa-server"></i> '+mynode.name+'</td> \
             <td align="right">'+mynode.load+'%</td> \
             <td align="right">'+(mynode.memory * 100).toFixed(2)+'%</td> \
             <td align="right">'+mynode.vmcount+'</td> \

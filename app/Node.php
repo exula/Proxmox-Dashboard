@@ -20,7 +20,6 @@ class Node extends Model
         self::getAllVMS();
 
         $collection = new Collection();
-
         foreach(self::$data as $nodeName => $data)
         {
             $node = new Node();
@@ -109,6 +108,10 @@ class Node extends Model
                     }
                 }
 
+            } else {
+                self::$data[$node['node']]['load'] = 0;
+                self::$data[$node['node']]['memory'] = 0;
+                self::$data[$node['node']]['vmcount'] = 0;
             }
         }
 
