@@ -87,6 +87,14 @@ class Node extends Model
 
     }
 
+    public static function getVirtualMachines($nodeName)
+    {
+
+        $nodeData = \Proxmox::get('/nodes/'.$nodeName.'/qemu/');
+        return $nodeData['data'];
+
+    }
+
     private static function getAllVMS()
     {
 
@@ -360,10 +368,18 @@ class Node extends Model
             $result = \Proxmox::create($url, $data);
 
             var_dump($result);
-
         }
+    }
 
+    public static function migrateVM($vmid, $from, $to)
+    {
 
+        $data = ['target' => $to, "online" => 1];
+        $url = '/nodes/'.$from.'/qemu/'.$vmid."/migrate";
+
+        $result = \Proxmox::create($url, $data);
+
+        var_dump($result);
     }
 
     public static function getTasks()

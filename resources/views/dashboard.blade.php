@@ -176,6 +176,7 @@
         $('#totalvms').html(data.totalvms);
 
         updateRecommendations(data);
+        updateMapRecommendations(data);
 
         updateNodes(data);
 
@@ -229,6 +230,28 @@
         recommendJSON = JSON.stringify(data.recommendations);
         console.log(recommendJSON);
         $("#recommendationsjson").val( recommendJSON );
+
+    }
+
+    function updateMapRecommendations(data)
+    {
+
+        html = "<ul>";
+        for( id in data.maprecommendations)
+        {
+            console.log(data.maprecommendations[id]);
+
+            html += "<li>"+data.maprecommendations[id]+"</li>";
+
+        }
+
+        html += "</ul>"
+
+        $("#maprecommendations").html(html);
+
+        recommendJSON = JSON.stringify(data.maprecommendations);
+        console.log(recommendJSON);
+        $("#maprecommendationsjson").val( recommendJSON );
 
     }
 
@@ -360,14 +383,26 @@
         Recommendations
     </div>
     <div class="panel-body">
+        <h3>Performance recommendations</h3>
         <p id="recommendations">
 
         </p>
-
         {!! Form::open(array('route' => 'dorecommendations')) !!}
         <input type="hidden" id=recommendationsjson name="recommendations" value="">
         <button type="submit">Do Recommendations</button>
         {!! Form::close() !!}
+
+
+        <h3>Failure Domain recommendations</h3>
+        <p id="maprecommendations">
+
+        </p>
+
+        {!! Form::open(array('route' => 'map/dorecommendations')) !!}
+        <input type="hidden" id=maprecommendationsjson name="maprecommendations" value="">
+        <button type="submit">Do Failure Domain Recommendations</button>
+        {!! Form::close() !!}
+
     </div>
 </div>
 

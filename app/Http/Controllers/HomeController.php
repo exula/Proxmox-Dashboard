@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Map;
 use App\Node;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,10 @@ class HomeController extends Controller
         $return['recommendations'] = Node::makeRecommendations();
 
         $return['status'] = Node::getClusterStatus();
+
+        $map = new Map();
+        $return['maprecommendations'] = $map->recommended();
+
 
         return response()->json($return);
 

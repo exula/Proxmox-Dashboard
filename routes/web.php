@@ -23,5 +23,8 @@ Route::get('provision', ['uses' => 'ProvisionController@create', 'as' => 'provis
 
 Route::post('provision', ['uses' => 'ProvisionController@store', 'as' => 'doProvision']);
 
+Route::get('map', ['uses' => 'MapController@index', 'as' => 'map']);
+Route::post('map/dorecommendations', ['uses' => 'MapController@doRecommendations', 'as' => 'map/dorecommendations']);
+
 Route::get('config', ['uses' => 'HomeController@config', 'as' => 'config']);
 
