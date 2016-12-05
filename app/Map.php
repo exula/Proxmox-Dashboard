@@ -91,6 +91,7 @@ class Map extends Model
             {
                 $vmlist[] = $vm['name'];
             }
+            sort($vmlist);
         }
 
         $groups = [];
@@ -106,6 +107,9 @@ class Map extends Model
         }
 
         $finalGroup = [];
+
+        asort($groups);
+
         foreach($groups as $key => $group)
         {
             foreach($groups as $group2)
@@ -131,41 +135,71 @@ class Map extends Model
 
         $this->computeVMGroups();
         //First round is to make sure that all machines in the same groups are in different failure domains
-        foreach($this->map as $nodeKey => $nodes)
+
+        foreach($this->map as $nodes)
         {
-            foreach($nodes['vms'] as $vm)
-            {
-                foreach($this->VMgroups as $groupName => $groupValue) {
-                    if(array_search($vm['name'], $groupValue) !== false)
-                    {
-                        $this->map[$nodeKey]['groups'][$groupName][] = $vm['name'];
+            $domains[$nodes['domain']][] = $nodes;
+        }
+
+        foreach($domains as $domain => $nodes)
+        {
+            foreach($nodes as $node) {
+                foreach ($node['vms'] as $vm) {
+                    foreach ($this->VMgroups as $groupName => $groupValue) {
+                        if (array_search($vm['name'], $groupValue) !== false) {
+                            $domains[$domain]['groups'][$groupName][] = $vm['name'];
+                            $domains[$domain]['nodes'][$node['name']] = $node['name'];
+                        }
                     }
                 }
             }
         }
 
+
         $recommends = [];
-        foreach($this->map as $nodes)
+        foreach($domains as $domainName => $domain)
         {
-            foreach($nodes['groups'] as $groupName => $group)
+            foreach($domain['groups'] as $groupName => $group)
             {
-                if(count($group) > 1)
+                $offset = ceil(count($this->VMgroups[$groupName]) / count($this->map));
+                $max = (count($this->VMgroups[$groupName]) % 2) + $offset;
+
+                if(count($group) > $max)
                 {
 
                     //Move one at a time to a new node
-                    $newNode = $this->differentFailureDomainNode($nodes, $groupName);
-                    if($newNode != $nodes['name']) {
-                        $vmMove = array_pop($nodes['groups'][$groupName]);
+                    $newNode = $this->differentFailureDomainNode($domainName, $groupName, $domains, $max);
 
-                        //Find the VM ID
+                    $vmMove = array_pop($domain['groups'][$groupName]);
 
-                        $recommends[] = 'move '.$this->getVMid($vmMove)." ($vmMove)".' from ' . $nodes['name'] . ' to ' . $newNode;
-                    }
+                    //Find the VM ID
+                    $recommends[$this->getVMid($vmMove)] = 'move ' . $this->getVMid($vmMove) . " ($vmMove)" . ' from ' . $this->getVMLocation($vmMove) . ' to ' . $newNode;
+                } else {
+
                 }
             }
         }
+
+        asort($recommends);
+
         return $recommends;
 
+    }
+
+    private function getVMLocation($name)
+    {
+        foreach($this->map as $nodes)
+        {
+            foreach($nodes['vms'] as $vm)
+            {
+                if($vm['name'] == $name)
+                {
+                    return $nodes['name'];
+                }
+
+            }
+        }
+        return false;
     }
 
     private function getVMid($name)
@@ -184,20 +218,34 @@ class Map extends Model
         return false;
     }
 
-    private function differentFailureDomainNode($node, $group)
+    private function differentFailureDomainNode($existingDomain, $group, $domainArray, $max = 1)
     {
-        $existingDomain = $node['domain'];
 
+        $possibleNodes = [];
         foreach($this->map as $nodes){
             if($nodes['domain'] != $existingDomain)
             {
-                if(!isset($nodes['groups'][$group]) || $nodes['groups'][$group] < 1) {
-                    return $nodes['name'];
+                if(!isset($nodes['groups'][$group]) || $nodes['groups'][$group] < $max) {
+                    $possibleNodes[] = $nodes;
+
                 }
             }
         }
 
-        return $node['name'];
+
+        if(count($possibleNodes) > 1)
+        {
+            //Ok there are two options, pick the one with least number of VM's currently
+            foreach($possibleNodes as $node)
+            {
+                $nodeCount[$node['name']] = count($node['vms']);
+            }
+        }
+
+        asort($nodeCount);
+        $keys = array_keys($nodeCount);
+
+        return $keys[0];
     }
 
 }

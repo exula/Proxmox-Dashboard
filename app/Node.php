@@ -313,6 +313,7 @@ class Node extends Model
             }
         }
 
+
         //We known which machines need more machines and which need less machines;
         //Lets recommend which machines to add from the VMs from
         foreach($nodeCount["add"] as $name => $count)
@@ -343,6 +344,7 @@ class Node extends Model
                 }
             }
         }
+
         return $recommend;
     }
 
