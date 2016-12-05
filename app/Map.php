@@ -13,8 +13,31 @@ class Map extends Model
 
     private $VMgroups = [];
 
+    /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    public function getFailureDomains()
+    {
+        $filename = base_path()."/.failuredomain";
+
+        if(is_file($filename))
+        {
+            $this->domainLookup = json_decode(file_get_contents($filename), true);
+        }
+    }
+
+    public function setFailureDomains()
+    {
+        $filename = base_path()."/.failuredomain";
+
+        file_put_contents($filename, json_encode($this->domainLookup,JSON_PRETTY_PRINT));
+    }
+
     public function current()
     {
+        $this->getFailureDomains();
         $current = Node::getAll();
 
         $domainIterator = 0;
@@ -26,11 +49,13 @@ class Map extends Model
                 $domain = $this->domainLookup[$node->name];
             } else {
                 $domain = $domainIterator;
+                $this->domainLookup[$node->name] = $domain;
             }
-
             $this->map[] = ["name" => $node->name, 'vms' => $this->cleanNodeData(Node::getVirtualMachines($node->name)), 'domain' => $domain];
             $domainIterator++;
         }
+
+        $this->setFailureDomains();
 
         $this->computeVMGroups();
 

@@ -9,5 +9,6 @@ bootstrap/cache/
 .env.*.php
 .env.php
 .env
+.failuredomain
 
 
