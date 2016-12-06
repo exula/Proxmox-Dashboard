@@ -143,6 +143,7 @@ class Map extends Model
 
         foreach($domains as $domain => $nodes)
         {
+            $domains[$domain]['groups'] = [];
             foreach($nodes as $node) {
                 foreach ($node['vms'] as $vm) {
                     foreach ($this->VMgroups as $groupName => $groupValue) {
@@ -154,6 +155,7 @@ class Map extends Model
                 }
             }
         }
+
 
 
         $recommends = [];
