@@ -63,7 +63,7 @@ php artisan key:generate
 6. Start a local web server
 
 ```
-php artisan serve
+php artisan serve --host 0.0.0.0
 ```
 
-You should now be able to point your browser to http://localhost:8000/ and a see a dashboard of your Proxmox Nodes
+You should now be able to point your browser to http://0.0.0.0:8000/ and a see a dashboard of your Proxmox Nodes
