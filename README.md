@@ -1,4 +1,4 @@
-# Proxmox-dasshboard
+# Proxmox-Dashboard
 A Laravel Application that manages our Proxmox Cluster. Features include cluster resources and a feature that balances QEMU guests across the cluster.
 
 ##Features
@@ -51,13 +51,14 @@ php artisan key:generate
 ```
 
 5. This project does not require any database configuration, you will need to update the following fields in the .env file
- ```
- PROXMOX_HOST=pve.example.com         <--- This is the FQDN to one of your Proxmox nodes. You can also pass a comma delemited list of FQDN
- PROXMOX_USER=root                    <--- A user that has full privledges to your Proxmox nodes
- PROXMOX_PASS=123456                  <--- Password for that use
- PROXMOX_REALM=pve                       <--- What proxmox realm that user is in
- 
-```
+* ```PROXMOX_HOST=pve.example.com```         
+  * This is the FQDN to one of your Proxmox nodes. You can also pass a comma delemited list of FQDN
+* ```PROXMOX_USER=root```
+  * A user that has full privledges to your Proxmox nodes
+* ```PROXMOX_PASS=123456```
+  * <--- Password for that use
+* ```PROXMOX_REALM=pve```                       
+  * <--- What proxmox realm that user is in
 
 6. Start a local web server
 
@@ -66,4 +67,3 @@ php artisan serve
 ```
 
 You should now be able to point your browser to http://localhost:8000/ and a see a dashboard of your Proxmox Nodes
-
