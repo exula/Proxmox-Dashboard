@@ -1,0 +1,38 @@
+cache:
+  key: $CI_COMMIT_REF_NAME # changed to $CI_COMMIT_REF_NAME in Gitlab 9.x
+  paths:
+    - vendor
+    - node_modules
+    - public
+
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  image: edbizarro/gitlab-ci-pipeline-php:7.2-alpine
+  script:
+    - composer install --prefer-dist --no-ansi --no-interaction --no-progress
+    - cp .env.example .env
+    - php artisan key:generate
+    - ./vendor/phpunit/phpunit/phpunit -c phpunit.xml -v --coverage-text --colors=never --stderr
+
+deploy_production:
+  stage: deploy
+  image: edbizarro/gitlab-ci-pipeline-php:7.2-fpm
+  script:
+    - composer global require "laravel/envoy=~1.0"
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - ~/.composer/vendor/bin/envoy run deploy
+  environment:
+    name: production
+    url: https://tvdashboard.cad.rit.edu
+  when: on_success
+  allow_failure: no
+  only:
+    - master
