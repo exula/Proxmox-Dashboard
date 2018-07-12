@@ -27,7 +27,7 @@
 @task('run_composer')
     echo "Starting deployment ({{ $release }})"
     cd {{ $new_release_dir }}
-    composer install --prefer-dist --no-scripts -q -o
+    export https_proxy=http://cias-http-proxy.rit.edu:3128; composer install --prefer-dist --no-scripts -q -o
 @endtask
 
 @task('update_symlinks')
