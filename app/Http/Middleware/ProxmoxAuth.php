@@ -24,6 +24,7 @@ class ProxmoxAuth
      */
     public function __construct(Auth $auth)
     {
+
         $this->auth = $auth;
     }
 
@@ -56,7 +57,7 @@ class ProxmoxAuth
     {
 
         $request = app('request');
-        $loggedin = $request->session('loggedin');
+        $loggedin = $request->session()->get('loggedin');
 
         if ($loggedin) {
             return true;

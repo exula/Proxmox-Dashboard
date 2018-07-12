@@ -68,10 +68,11 @@ class LoginController extends Controller
         $data = ['hostname' => config('proxmox.server.hostname'), 'username' => $username, 'password' => $password, 'realm' => $realm];
 
 
+
         try {
             $proxmox = new Proxmox($data);
 
-            $request->session('loggedin', True);
+            $request->session()->put('loggedin', True);
 
             return redirect('/');
 

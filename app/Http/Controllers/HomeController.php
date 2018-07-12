@@ -15,13 +15,13 @@ class HomeController extends Controller
     public function index(Request $request)
     {
 
-        return view('dashboard', compact('nodes', 'recommendations','totalvms', 'status'));
+        return view('dashboard');
     }
 
     public function dash(Request $request)
     {
 
-        return view('guestdash', compact('nodes', 'recommendations','totalvms', 'status'));
+        return view('guestdash');
     }
 
 

@@ -41,6 +41,8 @@
     echo 'Linking current release'
     ln -nfs {{ $new_release_dir }}/public {{ $app_dir }}
 
+    chown www-data:www-data {{ $storage_dir }} -R
+    chown www-data:www-data {{ $releases_dir }} -R
 
     echo 'Spamming cache reset URL'
 
