@@ -1,4 +1,4 @@
-@servers(['web' => 'dashboard@cad-proxmox-dashboard.rit.edu'])
+@servers(['web' => 'root@cad-proxmox-dashboard.rit.edu'])
 
 @setup
     $url = 'https://cad-proxmox-dashboard.cias.rit.edu';
