@@ -344,58 +344,66 @@
             </div>
         </div>
 
-        <div class="card mt-2">
-            <div class="card-header bg-success">Cluster Nodes</div>
-            <div class="card-body">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th align="right">CPU Load</th>
-                        <th align="right">Memory Usage</th>
-                        <th align="right">Started VMs</th>
-                    </tr>
-                    </thead>
-                    <tbody id="nodestbody">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mt-2">
+                <div class="card-header bg-success">Cluster Nodes</div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th align="right">CPU Load</th>
+                            <th align="right">Memory Usage</th>
+                            <th align="right">Started VMs</th>
+                        </tr>
+                        </thead>
+                        <tbody id="nodestbody">
 
-                    </tbody>
-                    <tfoot>
-                    <tr>
-                        <td colspan="3"></td>
-                        <td align="right"><i class="fa fa-tv"></i> <strong><span id="totalvms"></span></strong></td>
-                    </tr>
-                    </tfoot>
-                </table>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="3"></td>
+                            <td align="right"><i class="fa fa-tv"></i> <strong><span id="totalvms"></span></strong></td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="card mt-2">
+                <div class="card-header bg-info">Recommendations</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h3>Performance recommendations</h3>
+                            <p id="recommendations">
 
-        <div class="card mt-2">
-            <div class="card-header bg-info">Recommendations</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <h3>Performance recommendations</h3>
-                        <p id="recommendations">
+                            </p>
+                            {!! Form::open(array('route' => 'dorecommendations')) !!}
+                            <input type="hidden" id=recommendationsjson name="recommendations" value="">
+                            <button class='btn btn-primary' type="submit">Do Recommendations</button>
+                            {!! Form::close() !!}
+                        </div>
+                        <div class="col-lg-6">
+                            <h3>Failure Domain recommendations</h3>
+                            <p id="maprecommendations">
 
-                        </p>
-                        {!! Form::open(array('route' => 'dorecommendations')) !!}
-                        <input type="hidden" id=recommendationsjson name="recommendations" value="">
-                        <button class='btn btn-primary' type="submit">Do Recommendations</button>
-                        {!! Form::close() !!}
-                    </div>
-                    <div class="col-lg-6">
-                        <h3>Failure Domain recommendations</h3>
-                        <p id="maprecommendations">
+                            </p>
 
-                        </p>
-
-                        {!! Form::open(array('route' => 'map/dorecommendations')) !!}
-                        <input type="hidden" id=maprecommendationsjson name="maprecommendations" value="">
-                        <button class='btn btn-primary' type="submit">Do Failure Domain Recommendations</button>
-                        {!! Form::close() !!}
+                            {!! Form::open(array('route' => 'map/dorecommendations')) !!}
+                            <input type="hidden" id=maprecommendationsjson name="maprecommendations" value="">
+                            <button class='btn btn-primary' type="submit">Do Failure Domain Recommendations</button>
+                            {!! Form::close() !!}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+
+
+
 
 @stop

@@ -5,12 +5,12 @@
     <div class="row">
         <div class="col-md-4"></div>
         <div class="col-md-4">
-            <div class="panel panel-info">
-                <div class="panel-heading">
+            <div class="card panel-info">
+                <div class="card-header">
                     <h1>Login</h1>
                     <small>Login using your ProxmoxVE credentials</small>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     <form class="form-horizontal" role="form" method="POST" action="{{ url('/login') }}">
                         {{ csrf_field() }}
 
