@@ -44,6 +44,8 @@
     chown www-data:www-data {{ $storage_dir }} -R
     chown www-data:www-data {{ $releases_dir }} -R
 
+    service php7.1-fpm reload
+
     echo 'Spamming cache reset URL'
 
     curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
