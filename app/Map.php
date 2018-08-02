@@ -59,7 +59,7 @@ class Map extends Model
             $domainIterator++;
         }
 
-        $this->setFailureDomains();
+//        $this->setFailureDomains();
 
         $this->computeVMGroups();
 
@@ -167,6 +167,7 @@ class Map extends Model
 
 
         $recommends = [];
+
         foreach($domains as $domainName => $domain)
         {
             foreach($domain['groups'] as $groupName => $group)
@@ -191,8 +192,7 @@ class Map extends Model
         }
 
         asort($recommends);
-
-        return $recommends;
+        return [array_pop($recommends)];
 
     }
 

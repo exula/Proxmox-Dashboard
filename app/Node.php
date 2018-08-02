@@ -32,8 +32,6 @@ class Node extends Model
         }
 
 
-
-
         //Lets add some weighting to the vmcount
         $mAverage = 0;
         $mCount = 0;
@@ -326,7 +324,8 @@ class Node extends Model
 
         $recommend = array_merge($recommend, Node::recommendVMCount());
 
-        return $recommend;
+        //Lets just return the first recommendation
+        return [array_pop($recommend)];
 
     }
 
@@ -388,6 +387,10 @@ class Node extends Model
 
                 foreach($nodeCount["remove"] as $removeName => $removeCount)
                 {
+
+                    if($removeCount >= 3) {
+                        $removeCount = 2;
+                    }
 
                     if($removeCount < $count && $removeCount != 0)
                     {

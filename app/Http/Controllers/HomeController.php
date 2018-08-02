@@ -38,13 +38,33 @@ class HomeController extends Controller
 
         $return['nodes'] = array_values($return['nodes']->toArray());
 
-        $return['recommendations'] = Node::makeRecommendations();
+        $tasks = Node::getTasks();
+
+        $migrating = false;
+        foreach($tasks as $task) {
+            if($task['type'] === 'qmigrate' && empty($task['status']))
+            {
+                $migrating = true;
+            }
+        }
 
         $return['status'] = Node::getClusterStatus();
 
-        $map = new Map();
-        $return['maprecommendations'] = $map->recommended();
+        if($migrating === false) {
+            $return['recommendations'] = Node::makeRecommendations();
 
+
+
+            $map = new Map();
+            $return['maprecommendations'] = $map->recommended();
+
+            if (count($return['maprecommendations']) > 0) {
+                $return['recommendations'] = [];
+            }
+        } else {
+            $return['recommendations'] = [];
+            $return['maprecommendations'] = [];
+        }
 
         return response()->json($return);
 
