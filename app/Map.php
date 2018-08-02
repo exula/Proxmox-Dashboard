@@ -93,7 +93,8 @@ class Map extends Model
         {
             foreach($nodes['vms'] as $vm)
             {
-                $vmlist[] = $vm['name'];
+                    $vmlist[] = $vm['name'];
+
             }
             sort($vmlist);
         }
@@ -104,12 +105,22 @@ class Map extends Model
         {
             foreach($vmlist as $list2)
             {
-                if(levenshtein($list, $list2) < 2) {
-                    $groups[$list][] = $list2;
+
+                $listParts = explode('-', $list);
+                $list2Parts = explode('-', $list2);
+
+                if(count($listParts) > 2) {
+                    if (\is_array($listParts) && \is_array($list2Parts)) {
+                        array_pop($listParts);
+                        array_pop($list2Parts);
+
+                        if ($listParts === $list2Parts) {
+                            $groups[$list][] = $list2;
+                        }
+                    }
                 }
             }
         }
-
         $finalGroup = [];
 
         asort($groups);

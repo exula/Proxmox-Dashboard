@@ -53,13 +53,13 @@ class HomeController extends Controller
         if($migrating === false) {
             $return['recommendations'] = Node::makeRecommendations();
 
-
-
             $map = new Map();
             $return['maprecommendations'] = $map->recommended();
 
-            if (count($return['maprecommendations']) > 0) {
+            if ($return['maprecommendations'][0] !== null) {
                 $return['recommendations'] = [];
+            } else {
+                $return['maprecommendations'] = [];
             }
         } else {
             $return['recommendations'] = [];
