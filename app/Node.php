@@ -28,54 +28,48 @@ class Node extends Model
             $node->memory = $data['memory'];
             $node->vmcount = $data['vmcount'];
 
+            $node->balancevalue = (
+                ($node->memory*100) +
+                ($node->vmcount)
+            );
+
             $collection->add($node);
         }
 
+        $totalBalance = 0;
 
-        //Lets add some weighting to the vmcount
-        $mAverage = 0;
-        $mCount = 0;
-        $totalCount = 0;
+        foreach($collection as $c)
+        {
+            $totalBalance += $c->balancevalue;
+        }
 
-        $collection->each(function($n) use (&$mAverage, &$mCount, &$totalCount) {
-            $mAverage += $n->memory;
-            $mCount++;
-            $totalCount += $n->vmcount;
-        });
+        $midPoint = $totalBalance / \count($collection);
 
-        $mAverage = $mAverage / $mCount;
 
-        $collection->each(function($n) use ($mAverage, $totalCount){
-           //If the memory usage is less than the average, lets pretend there are less vms on the machine
-            if($n->memory < $mAverage)
+
+        $points = [
+            'midPoint' => $midPoint,
+            'lowpoint' =>  $midPoint - ($totalBalance * .015),
+            'hightpoint' => $midPoint + ($totalBalance * .020)
+            ];
+
+        $collection->each(function($n) use ($points) {
+
+            if($n->balancevalue <= $points['lowpoint'])
             {
-                $diff = abs($n->memory - $mAverage);
-
-                $vmOffset = floor(($diff * $totalCount)/4);
-
-                $n->vmcount -= $vmOffset;
-                if($n->vmcount <= 0)
-                {
-                    $n->vmcount = 0;
-                }
-
-            } elseif($n->memory > $mAverage)
+                $n->balancestatus = 'low';
+            } elseif ( $n->balancevalue >= $points['hightpoint'])
             {
-                $diff = abs($n->memory - $mAverage);
-
-                $vmOffset = floor(($diff * $totalCount)/4);
-
-                $n->vmcount += $vmOffset;
-                if($n->vmcount <= 0)
-                {
-                    $n->vmcount = 0;
-                }
+                $n->balancestatus = 'high';
+            } else {
+                $n->balancestatus = 'mid';
             }
+
         });
 
 
         $collection = $collection->sortBy(function($obj){
-            $parts = preg_split("/-/", $obj->name);
+            $parts = explode('-', $obj->name);
 
             return $parts[count($parts)-1];
 
@@ -357,11 +351,11 @@ class Node extends Model
             //Lets determine what action needs to be taken to bring all the nodes to the average vm count
 
             $diff = $vmcountAverage - $node->vmcount;
-            if($diff < 0)
+            if($node->balancestatus == 'high')
             {
                 //We need to add vm's
                 $nodeCount["remove"][$node->name] = abs($diff);
-            } elseif ($diff > ($totalVMs % count($nodes)))
+            } elseif ($node->balancestatus == 'low')
             {
                 $nodeCount["add"][$node->name] = abs($diff);
             }
@@ -392,17 +386,24 @@ class Node extends Model
                         $removeCount = 2;
                     }
 
+
+                    if($count == 0 || $removeCount == 0)
+                    {
+                        $count = 1;
+
+                    }
+
                     if($removeCount < $count && $removeCount != 0)
                     {
                         if(!isset($allreadyRemoved[$removeName])) {
-                            $recommend[] = "Remove " . $removeCount . " from " . $removeName . " to " . $name;
+                            $recommend[] = 'Remove ' . $removeCount . ' from ' . $removeName . ' to ' . $name;
                             //Update the node counts
                             $nodeCount["remove"][$removeName] = $nodeCount["remove"][$removeName] - $removeCount;
                             $allreadyRemoved[$removeName] = true;
                         }
                     } else {
                         if(!isset($allreadyRemoved[$removeName])) {
-                            $recommend[] = "Remove " . $count . " from " . $removeName . " to " . $name;
+                            $recommend[] = 'Remove ' . $count . ' from ' . $removeName . ' to ' . $name;
                             $nodeCount["remove"][$removeName] = $nodeCount["remove"][$removeName] - $count;
                             $allreadyRemoved[$removeName] = true;
                         }
@@ -420,9 +421,9 @@ class Node extends Model
             {
                 foreach($nodes as $node)
                 {
-                    if($node->name != $name && !isset($allreadyAdded[$node->name])) {
+                    if($node->name !== $name && !isset($allreadyAdded[$node->name])) {
                         if ($count > 0) {
-                            $recommend[] = "Remove 1 from " . $name . " to " . $node->name;
+                            $recommend[] = 'Remove 1 from ' . $name . ' to ' . $node->name;
                             $allreadyRemoved[$name] = true;
                             $allreadyAdded[$name] = true;
                             $allreadyAdded[$node->name] = true;
@@ -440,7 +441,7 @@ class Node extends Model
     public static function migrate($howmany, $from, $to)
     {
 
-        echo "Migrate ".$howmany. " vms from ".$from." to ".$to."<br/>";
+        echo 'Migrate ' .$howmany. ' vms from ' .$from. ' to ' .$to. '<br/>';
 
         //Lets determine which vms we pick to migrate
 
