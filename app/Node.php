@@ -129,7 +129,7 @@ class Node extends Model
 
         $nodes = self::getAll();
 
-        $link = 'https://'.$nodes->pop()->name.':8006/#v1:0:=qemu%2F'.$vmid;
+        $link = 'https://'.$nodes->pop()->name.'.rit.edu:8006/#v1:0:=qemu%2F'.$vmid;
 
         return $link;
 

@@ -17,4 +17,4 @@ mix.js(['resources/assets/js/app.js',
    .sass('resources/assets/sass/app.scss', 'public/css')
     .css('resources/assets/css/dashboard.css', 'public/css');
 
-mix.browserSync('http://localhost:8081');
+mix.browserSync('http://localhost:8000');
