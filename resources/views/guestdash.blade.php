@@ -206,6 +206,7 @@
             <td align="right">'+mynode.load+'%</td> \
             <td align="right">'+(mynode.memory * 100).toFixed(2)+'%</td> \
             <td align="right">'+mynode.vmcount+'</td> \
+            <td align="right">' + mynode.balancestatus + '</td> \
             </tr>';
 
         }
@@ -364,6 +365,7 @@
                         <th align="right">CPU Load</th>
                         <th align="right">Memory Usage</th>
                         <th align="right">Started VMs</th>
+                        <th align="right">Load Level</th>
                     </tr>
                     </thead>
                     <tbody id="nodestbody">
