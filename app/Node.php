@@ -194,11 +194,11 @@ class Node extends Model
         {
             $nodeData = \Proxmox::get('/nodes/'.$node.'/qemu/');
 
-            foreach($nodeData['data'] as $vms)
-            {
-                if($vms['template'])
-                {
-                    $templates[$node."::".$vms['vmid']] = $vms['name'];
+            if(isset($node['data'])) {
+                foreach ($nodeData['data'] as $vms) {
+                    if ($vms['template']) {
+                        $templates[$node . "::" . $vms['vmid']] = $vms['name'];
+                    }
                 }
             }
         }

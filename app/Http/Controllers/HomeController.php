@@ -31,11 +31,21 @@ class HomeController extends Controller
         $return['nodes'] = Node::getAll();
 
         $return['totalvms'] = 0;
+        $balanced = count($return['nodes']);
         foreach($return['nodes'] as $node)
         {
             $return['totalvms'] += $node->vmcount;
+
+            if($node->balancestatus == 'high') {
+                $balanced++;
+            } elseif ($node->balancestatus == 'low')
+            {
+                $balanced--;
+            }
+
         }
 
+        $return['balance'] = count($return['nodes']) - $balanced;
         $return['nodes'] = array_values($return['nodes']->toArray());
 
         $tasks = Node::getTasks();
@@ -65,6 +75,9 @@ class HomeController extends Controller
             $return['recommendations'] = [];
             $return['maprecommendations'] = [];
         }
+
+
+
 
         return response()->json($return);
 
