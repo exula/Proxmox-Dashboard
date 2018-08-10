@@ -104,10 +104,11 @@ class Node extends Model
 
             $vms = self::getVirtualMachines($node['node']);
 
-            foreach($vms as $vm)
-            {
-                $vm['config'] = (object) self::getVMConfig($node['node'],$vm['vmid']);
-                $collection->push((object) $vm);
+            if(isset($vms)) {
+                foreach ($vms as $vm) {
+                    $vm['config'] = (object)self::getVMConfig($node['node'], $vm['vmid']);
+                    $collection->push((object)$vm);
+                }
             }
 
         }
