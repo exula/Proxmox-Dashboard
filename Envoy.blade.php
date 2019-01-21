@@ -53,6 +53,11 @@
     curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
     curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
 
+    curl https://sentry.cad.rit.edu/api/hooks/release/builtin/8/8cfd87113551a1faa7d2ed6135a7432bd3b49496f1b3f53ab6a5cb349c4d3440/ \
+    -X POST \
+    -H 'Content-Type: application/json' \
+    -d '{"version": "{{ $release }}"}'
+
 @endtask
 
 @task('clean_old_releases')
