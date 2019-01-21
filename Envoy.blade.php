@@ -49,7 +49,7 @@
     chown www-data:www-data {{ $releases_dir }} -R
 
     echo 'Installing Crontab file'
-    cp crontab /etc/cron.d/pve-migrations
+    cp {{ $new_release_dir }}/crontab /etc/cron.d/pve-migrations
 
     service php7.1-fpm reload
 
