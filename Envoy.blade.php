@@ -4,6 +4,7 @@
     $url = 'https://cad-proxmox-dashboard.cias.rit.edu';
     $repository = 'git@gitlab.cad.rit.edu:cadtech-support/proxmox-dashboard.git';
     $releases_dir = '/var/www/releases';
+    $latest_dir = '/var/www/latest';
     $app_dir = '/var/www/html';
     $storage_dir = '/var/www/storage';
     $env_file = '/var/www/.env';
@@ -41,8 +42,14 @@
     echo 'Linking current release'
     ln -nfs {{ $new_release_dir }}/public {{ $app_dir }}
 
+    echo 'Linking latest version;
+    ln -nfs {{ $new_release_dir }} {{ $latest_dir }}
+
     chown www-data:www-data {{ $storage_dir }} -R
     chown www-data:www-data {{ $releases_dir }} -R
+
+    echo 'Installing Crontab file'
+    cp crontab /etc/cron.d/pve-migrations
 
     service php7.1-fpm reload
 

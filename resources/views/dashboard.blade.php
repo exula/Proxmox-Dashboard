@@ -214,12 +214,15 @@
 
             function updateRecommendations(data) {
 
+                if(data.recommendations.length == 0) {
+                    $('#recommendsButton').attr("disabled", "disabled");
+                } else {
+                    $('#recommendsButton').removeAttr("disabled");
+                }
+
                 html = "<ul>";
                 for (id in data.recommendations) {
-                    console.log(data.recommendations[id]);
-
                     html += "<li>" + data.recommendations[id] + "</li>";
-
                 }
 
                 html += "</ul>"
@@ -227,12 +230,17 @@
                 $("#recommendations").html(html);
 
                 recommendJSON = JSON.stringify(data.recommendations);
-                console.log(recommendJSON);
                 $("#recommendationsjson").val(recommendJSON);
 
             }
 
             function updateMapRecommendations(data) {
+
+                if(data.maprecommendations.length == 0) {
+                    $('#failureButton').attr("disabled", "disabled");
+                } else {
+                    $('#failureButton').removeAttr("disabled");
+                }
 
                 html = "<ul>";
                 for (id in data.maprecommendations) {
@@ -247,7 +255,6 @@
                 $("#maprecommendations").html(html);
 
                 recommendJSON = JSON.stringify(data.maprecommendations);
-                console.log(recommendJSON);
                 $("#maprecommendationsjson").val(recommendJSON);
 
             }
@@ -385,7 +392,7 @@
                             </p>
                             {!! Form::open(array('route' => 'dorecommendations')) !!}
                             <input type="hidden" id=recommendationsjson name="recommendations" value="">
-                            <button class='btn btn-primary' type="submit">Do Recommendations</button>
+                            <button id='recommendsButton' class='btn btn-primary' type="submit">Do Recommendations</button>
                             {!! Form::close() !!}
                         </div>
                         <div class="col-lg-6">
@@ -396,7 +403,7 @@
 
                             {!! Form::open(array('route' => 'map/dorecommendations')) !!}
                             <input type="hidden" id=maprecommendationsjson name="maprecommendations" value="">
-                            <button class='btn btn-primary' type="submit">Do Failure Domain Recommendations</button>
+                            <button id='failureButton' class='btn btn-primary' type="submit">Do Failure Domain Recommendations</button>
                             {!! Form::close() !!}
                         </div>
                     </div>

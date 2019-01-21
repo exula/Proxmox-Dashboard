@@ -13,6 +13,91 @@ class Node extends Model
     private static $data = [];
     private static $alreadyMigrated = [];
 
+    public static function doRecommendations($recommendations)
+    {
+        foreach($recommendations as $recommend)
+        {
+
+            $matches= explode(' ', $recommend);
+
+            $action = strtolower($matches[0]);
+            $howmany = $matches[1];
+
+
+            if($action === 'remove')
+            {
+                $from = $matches[3];
+                $to = $matches[5];
+            } else {
+                //If it's an add reverse
+                $to = $matches[3];
+                $from = $matches[5];
+            }
+
+            Node::migrate($howmany, $from, $to);
+
+        }
+    }
+
+    public static function getDashboardData()
+    {
+
+        $return['nodes'] = self::getAll();
+
+        $return['totalvms'] = 0;
+        $balanced = count($return['nodes']);
+        foreach($return['nodes'] as $node)
+        {
+            $return['totalvms'] += $node->vmcount;
+
+            if($node->balancestatus === 'high') {
+                $balanced++;
+            } elseif ($node->balancestatus === 'low')
+            {
+                $balanced--;
+            }
+
+        }
+
+        $return['balance'] = count($return['nodes']) - $balanced;
+        $return['nodes'] = array_values($return['nodes']->toArray());
+
+        $tasks = self::getTasks();
+
+        $migrating = false;
+        foreach($tasks as $task) {
+            if($task['type'] === 'qmigrate' && empty($task['status']))
+            {
+                $migrating = true;
+            }
+        }
+
+        $return['status'] = self::getClusterStatus();
+
+        if($migrating === false) {
+            $return['recommendations'] = self::makeRecommendations();
+
+            if ($return['recommendations'][0] === null) {
+                $return['recommendations'] = [];
+            }
+
+            $map = new Map();
+            $return['maprecommendations'] = $map->recommended();
+
+            if ($return['maprecommendations'][0] !== null) {
+                $return['recommendations'] = [];
+            } else {
+                $return['maprecommendations'] = [];
+            }
+        } else {
+            $return['recommendations'] = [];
+            $return['maprecommendations'] = [];
+        }
+
+
+        return $return;
+    }
+
     public static function getAll()
     {
         //Lets fake some data right now

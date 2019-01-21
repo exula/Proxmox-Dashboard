@@ -13,6 +13,21 @@ class Map extends Model
 
     private $VMgroups = [];
 
+    public static function doRecommendations($recommendations = [])
+    {
+        foreach($recommendations as $recommend)
+        {
+
+            $matches= explode(' ', $recommend);
+
+            $vmid = $matches[1];
+            $from = $matches[4];
+            $to = $matches[6];
+
+            Node::migrateVM($vmid, $from, $to);
+        }
+    }
+
     /**
      * The "booting" method of the model.
      *
@@ -121,6 +136,7 @@ class Map extends Model
                 }
             }
         }
+
         $finalGroup = [];
 
         asort($groups);
@@ -180,8 +196,11 @@ class Map extends Model
         {
             foreach($domain['groups'] as $groupName => $group)
             {
+
+
                 $offset = ceil(count($this->VMgroups[$groupName]) / count($this->map));
                 $max = (count($this->VMgroups[$groupName]) % 2) + $offset;
+
 
                 if(count($group) > $max)
                 {
@@ -192,8 +211,6 @@ class Map extends Model
 
                     //Find the VM ID
                     $recommends[$this->getVMid($vmMove)] = 'move ' . $this->getVMid($vmMove) . " ($vmMove)" . ' from ' . $this->getVMLocation($vmMove) . ' to ' . $newNode;
-                } else {
-
                 }
             }
         }

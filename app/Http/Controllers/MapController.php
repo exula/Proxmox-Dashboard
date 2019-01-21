@@ -6,7 +6,7 @@ use App\Map;
 use App\Node;
 use Illuminate\Http\Request;
 
-class Mapcontroller extends Controller
+class MapController extends Controller
 {
     //
     public function index(Request $request)
@@ -26,19 +26,8 @@ class Mapcontroller extends Controller
     {
 
         $recommendations = json_decode($request->get('maprecommendations'));
+        Map::doRecommendations($recommendations);
 
-        foreach($recommendations as $recommend)
-        {
-
-            $matches= preg_split('/ /', $recommend);
-
-            $vmid = $matches[1];
-            $from = $matches[4];
-            $to = $matches[6];
-
-            Node::migrateVM($vmid, $from, $to);
-
-        }
         return redirect()->route('tasks');
     }
 
