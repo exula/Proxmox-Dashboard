@@ -98,7 +98,7 @@ class HomeController extends Controller
             $howmany = $matches[1];
 
 
-            if($action == 'remove')
+            if($action === 'remove')
             {
                 $from = $matches[3];
                 $to = $matches[5];

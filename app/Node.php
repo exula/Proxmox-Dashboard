@@ -133,10 +133,14 @@ class Node extends Model
 
         $allnodes = \Proxmox::get('/nodes');
 
+        $allnodes['data'] = collect($allnodes['data'])->sortBy('node')->reverse()->toArray();
+
         self::$data = [];
         foreach($allnodes['data'] as $node) {
             if (isset($node['cpu'])) {
                 $nodeData = \Proxmox::get('/nodes/' . $node['node'] . '/qemu/');
+
+                $nodeData['data'] = collect($nodeData['data'])->sortBy('name')->reverse()->toArray();
                 if (isset($node['cpu'])) {
                     self::$data[$node['node']]['load'] = round($node['cpu'], 2);
                     self::$data[$node['node']]['memory'] = $node['mem'] / $node['maxmem'];

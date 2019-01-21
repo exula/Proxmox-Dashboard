@@ -148,7 +148,6 @@ class Map extends Model
             $this->current();
         }
 
-
         $this->computeVMGroups();
         //First round is to make sure that all machines in the same groups are in different failure domains
 
@@ -188,7 +187,6 @@ class Map extends Model
 
                 if(count($group) > $max)
                 {
-
                     //Move one at a time to a new node
                     $newNode = $this->differentFailureDomainNode($domainName, $groupName, $domains, $max);
 
@@ -247,7 +245,7 @@ class Map extends Model
             if($nodes['domain'] != $existingDomain && $nodes['offline'] === false)
             {
                 if(!isset($nodes['groups'][$group]) || $nodes['groups'][$group] < $max) {
-                        $possibleNodes[] = $nodes;
+                    $possibleNodes[] = $nodes;
                 }
             }
         }
@@ -257,7 +255,7 @@ class Map extends Model
             //Ok there are two options, pick the one with least number of VM's currently
             foreach($possibleNodes as $node)
             {
-                    $nodeCount[$node['name']] = count($node['vms']);
+                $nodeCount[$node['name']] = count($node['vms']);
             }
         }
 
