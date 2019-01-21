@@ -156,7 +156,6 @@ class Map extends Model
             $domains[$nodes['domain']][] = $nodes;
         }
 
-
         foreach($domains as $domain => $nodes)
         {
             $domains[$domain]['groups'] = [];
@@ -173,7 +172,6 @@ class Map extends Model
                 }
             }
         }
-
 
 
         $recommends = [];
