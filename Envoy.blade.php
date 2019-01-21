@@ -42,7 +42,7 @@
     echo 'Linking current release'
     ln -nfs {{ $new_release_dir }}/public {{ $app_dir }}
 
-    echo 'Linking latest version;
+    echo 'Linking latest version'
     ln -nfs {{ $new_release_dir }} {{ $latest_dir }}
 
     chown www-data:www-data {{ $storage_dir }} -R
