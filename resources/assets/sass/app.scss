@@ -4,4 +4,6 @@
 @import "node_modules/font-awesome/scss/font-awesome.scss";
 
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
+@import "~bootswatch/dist/slate/variables";
+@import "~bootstrap/scss/bootstrap";
+@import "~bootswatch/dist/slate/bootswatch";

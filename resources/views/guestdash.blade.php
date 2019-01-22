@@ -291,7 +291,8 @@
 
 
 <div class="card mt-2">
-    <div class="card-header  bg-warning">Guests and Cluster</div>
+    <div class="card-header bg-warning text-dark text-left">
+        Guests and Cluster</div>
     <div class="card-body">
         <div class="row">
             <div class="col-lg-6 text-center">
@@ -356,7 +357,9 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card mt-2">
-            <div class="card-header bg-success">Cluster Nodes</div>
+            <div class="card-header bg-success text-dark text-left">
+                Cluster Nodes
+            </div>
             <div class="card-body">
                 <table class="table table-bordered table-striped table-sm">
                     <thead>
@@ -383,7 +386,9 @@
     </div>
     <div class="col-md-6">
         <div class="card mt-2">
-            <div class="card-header bg-info">Recommendations</div>
+            <div class="card-header bg-info text-dark text-left">
+                Recommendations
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-6">
