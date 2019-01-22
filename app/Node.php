@@ -525,6 +525,12 @@ class Node extends Model
         }
 
 
+        //If is one recommendation, lets just get rid of it.
+        // We only want to do things if there are 2+ recommendations
+        if(count($recommend) === 1) {
+            unset($recommend[0]);
+        }
+
         return $recommend;
     }
 
