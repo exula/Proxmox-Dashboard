@@ -215,8 +215,6 @@ class Map extends Model
             }
         }
 
-        dd($recommends);
-
         asort($recommends);
         return [array_pop($recommends)];
 
@@ -267,7 +265,6 @@ class Map extends Model
             }
         }
 
-
         if(count($possibleNodes) > 1)
         {
             //Ok there are two options, pick the one with least number of VM's currently
@@ -280,11 +277,8 @@ class Map extends Model
                 }
             }
         }
-
-
         asort($nodeCount);
         $keys = array_keys($nodeCount);
-
 
         return $keys[0];
     }
