@@ -74,7 +74,7 @@ class Map extends Model
             $domainIterator++;
         }
 
-//        $this->setFailureDomains();
+//      $this->setFailureDomains();
 
         $this->computeVMGroups();
 
@@ -215,6 +215,8 @@ class Map extends Model
             }
         }
 
+        dd($recommends);
+
         asort($recommends);
         return [array_pop($recommends)];
 
@@ -265,17 +267,24 @@ class Map extends Model
             }
         }
 
+
         if(count($possibleNodes) > 1)
         {
             //Ok there are two options, pick the one with least number of VM's currently
             foreach($possibleNodes as $node)
             {
-                $nodeCount[$node['name']] = count($node['vms']);
+                //Only allow a move if a VM of this group isn't already in the node
+                $names = array_pluck($node['vms'],'name');
+                if( count(array_intersect($this->VMgroups[$group], $names)) == 0) {
+                    $nodeCount[$node['name']] = count($node['vms']);
+                }
             }
         }
 
+
         asort($nodeCount);
         $keys = array_keys($nodeCount);
+
 
         return $keys[0];
     }

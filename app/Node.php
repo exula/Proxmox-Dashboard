@@ -453,6 +453,10 @@ class Node extends Model
 
         $allreadyRemoved = [];
 
+        arsort($nodeCount['remove'],SORT_NUMERIC);
+        arsort($nodeCount['add'],SORT_NUMERIC);
+
+
         //We known which machines need more machines and which need less machines;
         //Lets recommend which machines to add from the VMs from
         foreach($nodeCount["add"] as $name => $count)
@@ -523,7 +527,6 @@ class Node extends Model
                 }
             }
         }
-
 
         //If is one recommendation, lets just get rid of it.
         // We only want to do things if there are 2+ recommendations
