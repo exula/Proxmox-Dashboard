@@ -548,17 +548,17 @@ class Node extends Model
 
         $vms = $vms->sortByDesc('cpu')->filter(function($i) {
             return $i['status'] == 'running';
-        })->slice(0,$howmany);
+        });
+
 
         foreach($vms as $vm)
         {
-
-            $data = ['target' => $to, "online" => 1];
-            $url = '/nodes/'.$from.'/qemu/'.$vm['vmid']."/migrate";
-
-            $result = \Proxmox::create($url, $data);
-
-            var_dump($result);
+            if(Map::isVMmapped($vm['name']) === false) {
+                $data = ['target' => $to, "online" => 1];
+                $url = '/nodes/' . $from . '/qemu/' . $vm['vmid'] . "/migrate";
+                $result = \Proxmox::create($url, $data);
+                return true;
+            }
         }
     }
 

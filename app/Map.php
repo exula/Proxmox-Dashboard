@@ -220,6 +220,35 @@ class Map extends Model
 
     }
 
+    public static function isVMmapped($vmname)
+    {
+
+        $map = new self();
+        $map->current();
+
+        $mygroup = '';
+        foreach($map->VMgroups as $key => $vms) {
+            $group = array_search($vmname, $vms);
+            if($group) {
+                $mygroup = $key;
+            }
+        }
+
+        if(empty($mygroup))
+        {
+            return false;
+        }
+
+
+        if (count($map->VMgroups[$mygroup]) > 1) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+
     private function getVMLocation($name)
     {
         foreach($this->map as $nodes)
