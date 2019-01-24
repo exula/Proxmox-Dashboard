@@ -82,6 +82,7 @@ class Node extends Model
             }
 
             $map = new Map();
+            $map->current();
             $return['maprecommendations'] = $map->recommended();
 
             if ($return['maprecommendations'][0] !== null) {
@@ -557,6 +558,8 @@ class Node extends Model
                 $data = ['target' => $to, "online" => 1];
                 $url = '/nodes/' . $from . '/qemu/' . $vm['vmid'] . "/migrate";
                 $result = \Proxmox::create($url, $data);
+                var_dump($result);
+                die();
                 return true;
             }
         }

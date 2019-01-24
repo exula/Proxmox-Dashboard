@@ -210,7 +210,9 @@ class Map extends Model
                     $vmMove = array_pop($domain['groups'][$groupName]);
 
                     //Find the VM ID
-                    $recommends[$this->getVMid($vmMove)] = 'move ' . $this->getVMid($vmMove) . " ($vmMove)" . ' from ' . $this->getVMLocation($vmMove) . ' to ' . $newNode;
+                    if(!empty($newNode)) {
+                        $recommends[$this->getVMid($vmMove)] = 'move ' . $this->getVMid($vmMove) . " ($vmMove)" . ' from ' . $this->getVMLocation($vmMove) . ' to ' . $newNode;
+                    }
                 }
             }
         }
@@ -294,8 +296,10 @@ class Map extends Model
             }
         }
 
+
         if(count($possibleNodes) > 1)
         {
+
             //Ok there are two options, pick the one with least number of VM's currently
             foreach($possibleNodes as $node)
             {
@@ -306,6 +310,10 @@ class Map extends Model
                 }
             }
         }
+        if(empty($nodeCount)) {
+            return false;
+        }
+
         asort($nodeCount);
         $keys = array_keys($nodeCount);
 
