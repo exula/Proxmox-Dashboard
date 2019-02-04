@@ -190,16 +190,23 @@
             function updateNodes(data) {
 
                 html = '';
-
+                var rowClass;
                 for (node in data.nodes) {
                     mynode = data.nodes[node];
 
                     if (mynode.load == 0) {
-                        rowclass = "danger";
+                        rowclass = "bg-danger";
                     } else {
                         rowclass = "";
                     }
-                    html += '<tr class=' + rowclass + '><td><i class="fa fa-server"></i> ' + mynode.name + '</td> \
+                    if(mynode.maintenanceMode === true)
+                    {
+                        maint = "<i class='fa fa-exclamation-triangle text-danger'></i>";
+                    } else {
+                        maint = '';
+                    }
+
+                    html += '<tr class="' + rowclass + '"><td><i class="fa fa-server"></i> ' + mynode.name + ' ' + maint +'</td> \
             <td align="right">' + mynode.load + '%</td> \
             <td align="right">' + (mynode.memory * 100).toFixed(2) + '%</td> \
             <td align="right">' + mynode.vmcount + '</td> \
@@ -213,6 +220,14 @@
             }
 
             function updateRecommendations(data) {
+
+                if(data.migrating === true) {
+                    $("#migrateCard").show();
+                    $("#recommendCard").hide();
+                } else {
+                    $("#migrateCard").hide();
+                    $("#recommendCard").show();
+                }
 
                 if(data.recommendations.length == 0) {
                     $('#recommendsButton').attr("disabled", "disabled");
@@ -244,10 +259,7 @@
 
                 html = "<ul>";
                 for (id in data.maprecommendations) {
-                    console.log(data.maprecommendations[id]);
-
                     html += "<li>" + data.maprecommendations[id] + "</li>";
-
                 }
 
                 html += "</ul>"
@@ -381,7 +393,14 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card mt-2">
+            <div class="card mt-2" id="migrateCard" style="display: none">
+                <div class="card-header bg-danger">Migrating</div>
+                <div class="card-body text-center">
+                    <i class="fa fa-spin fa-spinner fa-4x"></i>
+                    <br/>Currently migrating
+                </div>
+            </div>
+            <div class="card mt-2" id="recommendCard" style="display: none">
                 <div class="card-header bg-info">Recommendations</div>
                 <div class="card-body">
                     <div class="row">

@@ -71,7 +71,7 @@ class Node extends Model
                 $migrating = true;
             }
         }
-
+        $return['migrating'] = $migrating;
         $return['status'] = self::getClusterStatus();
 
         if($migrating === false) {
@@ -113,6 +113,7 @@ class Node extends Model
             $node->load = round($data['load']*100,2);
             $node->memory = $data['memory'];
             $node->vmcount = $data['vmcount'];
+            $node->maintenanceMode = $data['maintenanceMode'];
 
             $node->balancevalue = (
                 ($node->memory*100) +
@@ -228,9 +229,22 @@ class Node extends Model
 
                 $nodeData['data'] = collect($nodeData['data'])->sortBy('name')->reverse()->toArray();
                 if (isset($node['cpu'])) {
+
+                    $nodeConfig = \Proxmox::get('/nodes/'. $node['node']. '/config');
+
                     self::$data[$node['node']]['load'] = round($node['cpu'], 2);
                     self::$data[$node['node']]['memory'] = $node['mem'] / $node['maxmem'];
                     self::$data[$node['node']]['vmcount'] = 0;
+
+                    if(isset($nodeConfig['data']['description'])) {
+                        if(false !== stripos($nodeConfig['data']['description'], 'maintenanceMode')) {
+                            self::$data[$node['node']]['maintenanceMode'] = true;
+                        } else {
+                            self::$data[$node['node']]['maintenanceMode'] = false;
+                        }
+                    } else {
+                        self::$data[$node['node']]['maintenanceMode'] = false;
+                    }
 
                     foreach ($nodeData['data'] as $vms) {
                         if ($vms['status'] == 'running') {
@@ -243,8 +257,10 @@ class Node extends Model
                 self::$data[$node['node']]['load'] = 0;
                 self::$data[$node['node']]['memory'] = 0;
                 self::$data[$node['node']]['vmcount'] = 0;
+                self::$data[$node['node']]['maintenanceMode'] = true;
             }
         }
+
     }
 
     public static function getStorage()
@@ -558,8 +574,6 @@ class Node extends Model
                 $data = ['target' => $to, "online" => 1];
                 $url = '/nodes/' . $from . '/qemu/' . $vm['vmid'] . "/migrate";
                 $result = \Proxmox::create($url, $data);
-                var_dump($result);
-                die();
                 return true;
             }
         }

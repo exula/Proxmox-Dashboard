@@ -38,7 +38,7 @@ class HomeController extends Controller
         $recommendations = json_decode($request->get('recommendations'));
 
         Node::doRecommendations($recommendations);
-        return redirect()->route('tasks');
+        return redirect()->route('dashboard');
     }
 
     public function virtualmachines()
