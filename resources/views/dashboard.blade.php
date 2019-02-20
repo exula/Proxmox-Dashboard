@@ -123,6 +123,7 @@
                 });
 
                 $.ajax({
+                    cache: false,
                     "url": '{{ route('dashboardData') }}',
                     success: function (data) {
                         initEasyPie();

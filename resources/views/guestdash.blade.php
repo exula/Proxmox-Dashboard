@@ -118,13 +118,13 @@
     function getData()
     {
         $.ajax({
-                    "url": '{{ route('dashboardData') }}',
-                    success: function (data) {
-                        initEasyPie();
-                        updateDashboard(data);
-                    }
-
-                }
+            cache: false,
+            "url": '{{ route('dashboardData') }}',
+            success: function (data) {
+                initEasyPie();
+                updateDashboard(data);
+            }
+            }
         );
     }
 
