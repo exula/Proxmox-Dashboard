@@ -9,21 +9,23 @@
 
 
 //We need to determine which hosts are 'up'
-
-$hosts = explode(",", getenv('PROXMOX_HOST'));
-
+if(!empty(getenv('PROXMOX_HOST'))) {
+    $hosts = explode(',', getenv('PROXMOX_HOST'));
+} else {
+    $hosts = [];
+}
 $workingHost = '';
 
-foreach($hosts as $host)
-{
+foreach ($hosts as $host) {
     $port = getenv('PROXMOX_PORT') ?: 8006;
     $waitTimeoutInSeconds = 1;
-    if($fp = fsockopen($host,$port,$errCode,$errStr,$waitTimeoutInSeconds)){
+    if ($fp = fsockopen($host, $port, $errCode, $errStr, $waitTimeoutInSeconds)) {
         // It worked
         $workingHost = $host;
     }
+    fclose($fp);
 }
-fclose($fp);
+
 
 
 return [
