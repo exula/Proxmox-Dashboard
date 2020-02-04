@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model;
 
 class Map extends Model
@@ -261,7 +262,7 @@ class Map extends Model
             //Ok there are two options, pick the one with least number of VM's currently
             foreach ($possibleNodes as $node) {
                 //Only allow a move if a VM of this group isn't already in the node
-                $names = array_pluck($node['vms'], 'name');
+                $names = Arr::pluck($node['vms'], 'name');
                 if (count(array_intersect($this->VMgroups[$group], $names)) == 0) {
                     $nodeCount[$node['name']] = count($node['vms']);
                 }

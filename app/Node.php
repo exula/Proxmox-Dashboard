@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use ProxmoxVE\Proxmox;
@@ -515,7 +516,7 @@ class Node extends Model
 
     public static function getTasks()
     {
-        return array_reverse(array_sort(\Proxmox::get('cluster/tasks')['data'], function ($value) {
+        return array_reverse(Arr::sort(\Proxmox::get('cluster/tasks')['data'], function ($value) {
             return $value['starttime'];
         })
         );
