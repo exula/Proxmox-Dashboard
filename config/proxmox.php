@@ -7,9 +7,8 @@
  * http://laravel.com/docs/configuration#protecting-sensitive-configuration
  */
 
-
 //We need to determine which hosts are 'up'
-if(!empty(getenv('PROXMOX_HOST'))) {
+if (! empty(getenv('PROXMOX_HOST'))) {
     $hosts = explode(',', getenv('PROXMOX_HOST'));
 } else {
     $hosts = [];
@@ -26,8 +25,6 @@ foreach ($hosts as $host) {
     fclose($fp);
 }
 
-
-
 return [
     'server' => [
         'hostname' => $workingHost,
@@ -36,5 +33,5 @@ return [
         // sensible defaults for these two
         'realm'    => getenv('PROXMOX_REALM') ?: 'pam',
         'port'     => getenv('PROXMOX_PORT') ?: 8006,
-    ]
+    ],
 ];

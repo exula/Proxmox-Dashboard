@@ -11,7 +11,6 @@ class ProvisionController extends Controller
 
     public function create(Request $request)
     {
-
         $templates = Node::getTemplates();
         $storage = Node::getStorage();
 
@@ -20,8 +19,7 @@ class ProvisionController extends Controller
 
     public function store(Request $request)
     {
-
-        $templateParts = preg_split("/::/", $request->get('template'));
+        $templateParts = preg_split('/::/', $request->get('template'));
 
         $node = $templateParts[0];
         $template = $templateParts[1];
@@ -31,18 +29,17 @@ class ProvisionController extends Controller
         $idData = \Proxmox::get('/cluster/nextid');
         $newID = $idData['data'];
         $data = [
-            "newid" => $newID,
-            "name" => $name,
-            "target" => $node,
-            "full" => 1,
-            "storage" => $storage,
-            "description" => "Provisioned from dashboard: ".date("m/d/Y").""
+            'newid' => $newID,
+            'name' => $name,
+            'target' => $node,
+            'full' => 1,
+            'storage' => $storage,
+            'description' => 'Provisioned from dashboard: '.date('m/d/Y').'',
         ];
 
-        $url = '/nodes/'.$node."/qemu/".$template."/clone";
+        $url = '/nodes/'.$node.'/qemu/'.$template.'/clone';
         $clone = \Proxmox::create($url, $data);
 
         return redirect()->route('tasks');
     }
-
 }

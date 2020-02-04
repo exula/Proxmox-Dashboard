@@ -28,7 +28,7 @@ Route::get('virtualmachines', ['uses' => 'HomeController@virtualmachines', 'as' 
 
 Route::get('config', ['uses' => 'HomeController@config', 'as' => 'config'])->middleware('proxmoxauth');
 
-Route::post('/deploymentHook', function(){
+Route::post('/deploymentHook', function () {
     Log::info('Resetting opcache for '.php_sapi_name());
     opcache_reset();
 });
