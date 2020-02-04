@@ -12,9 +12,9 @@ let mix = require('laravel-mix');
  */
 
 
-mix.js(['resources/assets/js/app.js',
+mix.js(['resources/js/app.js',
 'node_modules/easy-pie-chart/dist/jquery.easypiechart.js'], 'public/js')
-   .sass('resources/assets/sass/app.scss', 'public/css')
-    .css('resources/assets/css/dashboard.css', 'public/css');
+   .sass('resources/sass/app.scss', 'public/css')
+    .css('resources/css/dashboard.css', 'public/css');
 
 mix.browserSync('http://localhost:8000');
