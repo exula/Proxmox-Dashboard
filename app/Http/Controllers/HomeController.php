@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests;
 use App\Map;
 use App\Node;
 use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use Khill\Lavacharts\Lavacharts;
 
 class HomeController extends Controller
@@ -14,30 +13,25 @@ class HomeController extends Controller
     //
     public function index(Request $request)
     {
-
         return view('dashboard');
     }
 
     public function dash(Request $request)
     {
-
         return view('guestdash');
     }
 
-
     public function dashboardData()
     {
-
         return response()->json(Node::getDashboardData());
-
     }
 
     public function doRecommendations(Request $request)
     {
-
         $recommendations = json_decode($request->get('recommendations'));
 
         Node::doRecommendations($recommendations);
+
         return redirect()->route('dashboard');
     }
 
@@ -47,19 +41,13 @@ class HomeController extends Controller
 
         $virtualmachines->sortBy('vmid');
 
-        return view('virtualmachines', compact("virtualmachines"));
-
+        return view('virtualmachines', compact('virtualmachines'));
     }
 
     public function tasks(Request $request)
     {
-
         $tasks = Node::getTasks();
 
-
         return view('tasks', compact('tasks'));
-
     }
-
 }
-
