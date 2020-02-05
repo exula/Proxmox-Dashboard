@@ -45,7 +45,6 @@ class ListRecommendations extends Command
 
         $headers = ['Recommendation'];
 
-        $this->table($headers, [$data['recommendations'], $data['maprecommendations']] );
-
+        $this->table($headers, [$data['recommendations'], $data['maprecommendations']]);
     }
 }

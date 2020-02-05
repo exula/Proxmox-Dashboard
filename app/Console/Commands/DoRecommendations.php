@@ -44,23 +44,20 @@ class DoRecommendations extends Command
 
         $this->info('Calculating recommendations');
 
-        if(isset($data['recommendations'][0]))
-        {
+        if (isset($data['recommendations'][0])) {
             $this->info($data['recommendations'][0]);
-            $cmd = "echo '".$data['recommendations'][0]. '\' | /usr/local/bin/cias-hipchat -R @bjcpgd';
+            $cmd = "echo '".$data['recommendations'][0].'\' | /usr/local/bin/cias-hipchat -R @bjcpgd';
             system($cmd);
             Node::doRecommendations($data['recommendations']);
         } else {
             $this->warn('No performance recommendations');
             $this->info('Calculating failure domain moves');
-            if(isset($data['maprecommendations'][0]))
-            {
-                $cmd = "echo '".$data['maprecommendations'][0]. '\' | /usr/local/bin/cias-hipchat -R @bjcpgd';
+            if (isset($data['maprecommendations'][0])) {
+                $cmd = "echo '".$data['maprecommendations'][0].'\' | /usr/local/bin/cias-hipchat -R @bjcpgd';
                 system($cmd);
                 $this->info($data['maprecommendations'][0]);
                 Map::doRecommendations($data['maprecommendations']);
             }
         }
-
     }
 }

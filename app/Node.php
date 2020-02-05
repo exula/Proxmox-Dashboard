@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Arr;
 use ProxmoxVE\Proxmox;
 
 class Node extends Model
@@ -15,17 +15,13 @@ class Node extends Model
 
     public static function doRecommendations($recommendations)
     {
-        foreach($recommendations as $recommend)
-        {
-
-            $matches= explode(' ', $recommend);
+        foreach ($recommendations as $recommend) {
+            $matches = explode(' ', $recommend);
 
             $action = strtolower($matches[0]);
             $howmany = $matches[1];
 
-
-            if($action === 'remove')
-            {
+            if ($action === 'remove') {
                 $from = $matches[3];
                 $to = $matches[5];
             } else {
@@ -34,29 +30,24 @@ class Node extends Model
                 $from = $matches[5];
             }
 
-            Node::migrate($howmany, $from, $to);
-
+            self::migrate($howmany, $from, $to);
         }
     }
 
     public static function getDashboardData()
     {
-
         $return['nodes'] = self::getAll();
 
         $return['totalvms'] = 0;
         $balanced = count($return['nodes']);
-        foreach($return['nodes'] as $node)
-        {
+        foreach ($return['nodes'] as $node) {
             $return['totalvms'] += $node->vmcount;
 
-            if($node->balancestatus === 'high') {
+            if ($node->balancestatus === 'high') {
                 $balanced++;
-            } elseif ($node->balancestatus === 'low')
-            {
+            } elseif ($node->balancestatus === 'low') {
                 $balanced--;
             }
-
         }
 
         $return['balance'] = count($return['nodes']) - $balanced;
@@ -65,16 +56,15 @@ class Node extends Model
         $tasks = self::getTasks();
 
         $migrating = false;
-        foreach($tasks as $task) {
-            if($task['type'] === 'qmigrate' && empty($task['status']))
-            {
+        foreach ($tasks as $task) {
+            if ($task['type'] === 'qmigrate' && empty($task['status'])) {
                 $migrating = true;
             }
         }
         $return['migrating'] = $migrating;
         $return['status'] = self::getClusterStatus();
 
-        if($migrating === false) {
+        if ($migrating === false) {
             $return['recommendations'] = self::makeRecommendations();
 
             if ($return['recommendations'][0] === null) {
@@ -95,7 +85,6 @@ class Node extends Model
             $return['maprecommendations'] = [];
         }
 
-
         return $return;
     }
 
@@ -106,17 +95,16 @@ class Node extends Model
         self::getAllVMS();
 
         $collection = new Collection();
-        foreach(self::$data as $nodeName => $data)
-        {
-            $node = new Node();
+        foreach (self::$data as $nodeName => $data) {
+            $node = new self();
             $node->name = $nodeName;
-            $node->load = round($data['load']*100,2);
+            $node->load = round($data['load'] * 100, 2);
             $node->memory = $data['memory'];
             $node->vmcount = $data['vmcount'];
             $node->maintenanceMode = $data['maintenanceMode'];
 
             $node->balancevalue = (
-                ($node->memory*100) +
+                ($node->memory * 100) +
                 ($node->vmcount)
             );
 
@@ -125,79 +113,65 @@ class Node extends Model
 
         $totalBalance = 0;
 
-        foreach($collection as $c)
-        {
+        foreach ($collection as $c) {
             $totalBalance += $c->balancevalue;
         }
 
         $midPoint = $totalBalance / \count($collection);
 
-
-
         $points = [
             'midPoint' => $midPoint,
             'lowpoint' =>  $midPoint - ($totalBalance * .015),
-            'hightpoint' => $midPoint + ($totalBalance * .020)
+            'hightpoint' => $midPoint + ($totalBalance * .020),
             ];
 
-        $collection->each(function($n) use ($points) {
-
-            if($n->balancevalue <= $points['lowpoint'])
-            {
+        $collection->each(function ($n) use ($points) {
+            if ($n->balancevalue <= $points['lowpoint']) {
                 $n->balancestatus = 'low';
-            } elseif ( $n->balancevalue >= $points['hightpoint'])
-            {
+            } elseif ($n->balancevalue >= $points['hightpoint']) {
                 $n->balancestatus = 'high';
             } else {
                 $n->balancestatus = 'mid';
             }
-
         });
 
-
-        $collection = $collection->sortBy(function($obj){
+        $collection = $collection->sortBy(function ($obj) {
             $parts = explode('-', $obj->name);
 
-            return $parts[count($parts)-1];
-
+            return $parts[count($parts) - 1];
         });
 
         return $collection;
-
     }
 
     public static function getVirtualMachines($nodeName)
     {
-
         $nodeData = \Proxmox::get('/nodes/'.$nodeName.'/qemu/');
-        return $nodeData['data'];
 
+        return $nodeData['data'];
     }
 
     private static function getVMConfig($nodeName, $vmid)
     {
         $config = \Proxmox::get('/nodes/'.$nodeName.'/qemu/'.$vmid.'/config');
+
         return $config['data'];
     }
 
     public static function returnAllVMS()
     {
-
         $collection = new Collection();
 
         $allnodes = \Proxmox::get('/nodes');
-        foreach($allnodes['data'] as $node)
-        {
-
+        foreach ($allnodes['data'] as $node) {
             $vms = self::getVirtualMachines($node['node']);
 
-            if(isset($vms)) {
+            if (isset($vms)) {
                 foreach ($vms as $vm) {
-                    $vm['config'] = (object)self::getVMConfig($node['node'], $vm['vmid']);
-                    $collection->push((object)$vm);
+                    $vm['config'] = (object) self::getVMConfig($node['node'], $vm['vmid']);
+                    $collection->push((object) $vm);
                 }
             }
-
         }
 
         return $collection;
@@ -212,32 +186,29 @@ class Node extends Model
         $link = 'https://'.$nodes->pop()->name.'.rit.edu:8006/#v1:0:=qemu%2F'.$vmid;
 
         return $link;
-
     }
 
     private static function getAllVMS()
     {
-
         $allnodes = \Proxmox::get('/nodes');
 
         $allnodes['data'] = collect($allnodes['data'])->sortBy('node')->reverse()->toArray();
 
         self::$data = [];
-        foreach($allnodes['data'] as $node) {
+        foreach ($allnodes['data'] as $node) {
             if (isset($node['cpu'])) {
-                $nodeData = \Proxmox::get('/nodes/' . $node['node'] . '/qemu/');
+                $nodeData = \Proxmox::get('/nodes/'.$node['node'].'/qemu/');
 
                 $nodeData['data'] = collect($nodeData['data'])->sortBy('name')->reverse()->toArray();
                 if (isset($node['cpu'])) {
-
-                    $nodeConfig = \Proxmox::get('/nodes/'. $node['node']. '/config');
+                    $nodeConfig = \Proxmox::get('/nodes/'.$node['node'].'/config');
 
                     self::$data[$node['node']]['load'] = round($node['cpu'], 2);
                     self::$data[$node['node']]['memory'] = $node['mem'] / $node['maxmem'];
                     self::$data[$node['node']]['vmcount'] = 0;
 
-                    if(isset($nodeConfig['data']['description'])) {
-                        if(false !== stripos($nodeConfig['data']['description'], 'maintenanceMode')) {
+                    if (isset($nodeConfig['data']['description'])) {
+                        if (false !== stripos($nodeConfig['data']['description'], 'maintenanceMode')) {
                             self::$data[$node['node']]['maintenanceMode'] = true;
                         } else {
                             self::$data[$node['node']]['maintenanceMode'] = false;
@@ -252,7 +223,6 @@ class Node extends Model
                         }
                     }
                 }
-
             } else {
                 self::$data[$node['node']]['load'] = 0;
                 self::$data[$node['node']]['memory'] = 0;
@@ -260,7 +230,6 @@ class Node extends Model
                 self::$data[$node['node']]['maintenanceMode'] = true;
             }
         }
-
     }
 
     public static function getStorage()
@@ -268,43 +237,35 @@ class Node extends Model
         $storage = \Proxmox::get('/storage');
 
         $ret = [];
-        foreach($storage['data'] as $d)
-        {
-            if(stristr($d['content'], 'images'))
-            {
+        foreach ($storage['data'] as $d) {
+            if (stristr($d['content'], 'images')) {
                 $showLocal = env('PROXMOX_SHOW_LOCAL_STORAGE') ?: true;
 
-                if($showLocal === true)
-                {
+                if ($showLocal === true) {
                     $ret[$d['storage']] = $d['storage'];
                 } else {
-                    if($d['storage'] != 'local')
-                    {
+                    if ($d['storage'] != 'local') {
                         $ret[$d['storage']] = $d['storage'];
                     }
                 }
-
             }
         }
         asort($ret);
 
         return $ret;
-
     }
 
     public static function getTemplates()
     {
-
         self::getAllVMS();
         $templates = [];
-        foreach(self::$data as $node => $data)
-        {
+        foreach (self::$data as $node => $data) {
             $nodeData = \Proxmox::get('/nodes/'.$node.'/qemu/');
 
-            if(isset($nodeData['data'])) {
+            if (isset($nodeData['data'])) {
                 foreach ($nodeData['data'] as $vms) {
                     if ($vms['template']) {
-                        $templates[$node . "::" . $vms['vmid']] = $vms['name'];
+                        $templates[$node.'::'.$vms['vmid']] = $vms['name'];
                     }
                 }
             }
@@ -313,7 +274,6 @@ class Node extends Model
         asort($templates);
 
         return $templates;
-
     }
 
     public static function getClusterStatus()
@@ -324,8 +284,7 @@ class Node extends Model
 
         $ha = \Proxmox::get('/cluster/ha/status/current');
 
-        if($ha['data'][0]['status'] == 'OK')
-        {
+        if ($ha['data'][0]['status'] == 'OK') {
             $quorum = true;
         } else {
             $quorum = false;
@@ -338,11 +297,9 @@ class Node extends Model
 
         $count = 0;
 
-        foreach($status['data'] as $stat)
-        {
+        foreach ($status['data'] as $stat) {
             if ($stat['type'] == 'node') {
-
-                if(isset($stat['cpu'])) {
+                if (isset($stat['cpu'])) {
                     $count++;
                     $memory['total'] += $stat['maxmem'];
                     $memory['used'] += $stat['mem'];
@@ -355,37 +312,29 @@ class Node extends Model
                 }
             }
 
-
-
-            if($stat['type'] == 'qemu')
-            {
-                if($stat['status'] == 'running') {
+            if ($stat['type'] == 'qemu') {
+                if ($stat['status'] == 'running') {
                     $vms['running'] += 1;
                 }
 
-                if($stat['status'] == 'paused') {
+                if ($stat['status'] == 'paused') {
                     $vms['paused'] += 1;
                 }
 
-                if($stat['status'] == 'stopped') {
+                if ($stat['status'] == 'stopped') {
                     $vms['stopped'] += 1;
                 }
-
             }
-
         }
 
         $cpu['used'] = $cpu['used'] / $count;
 
-
         $online = 0;
         $offline = 0;
 
-        foreach($cluster['data'] as $node)
-        {
-            if($node['type'] == 'node')
-            {
-                if($node['online'] == 1) {
+        foreach ($cluster['data'] as $node) {
+            if ($node['type'] == 'node') {
+                if ($node['online'] == 1) {
                     $online += 1;
                 } else {
                     $offline += 1;
@@ -396,38 +345,33 @@ class Node extends Model
         //Do some work on the cpu and memory so we don't have to do any work on the client  side
         $cpu['used'] = round($cpu['used'] * 100);
 
-
         $memory['used'] = round(($memory['used'] / $memory['total']) * 100);
-        $memory['total'] = round($memory['total']/1024/1024/1024);
+        $memory['total'] = round($memory['total'] / 1024 / 1024 / 1024);
 
-
-        $disk['used'] = round(($disk['used'] / $disk['total'])*100);
-        $disk['total'] = round($disk['total']/1024/1024/1024);
+        $disk['used'] = round(($disk['used'] / $disk['total']) * 100);
+        $disk['total'] = round($disk['total'] / 1024 / 1024 / 1024);
 
         $returnArray = [
-            "cpu" => $cpu,
-            "memory" => $memory,
-            "disk" => $disk,
+            'cpu' => $cpu,
+            'memory' => $memory,
+            'disk' => $disk,
             'vms' => $vms,
             'quorum' => $quorum,
             'online' => $online,
-            'offline' => $offline
+            'offline' => $offline,
         ];
 
         return $returnArray;
-
     }
 
     public static function makeRecommendations()
     {
-
         $recommend = [];
 
-        $recommend = array_merge($recommend, Node::recommendVMCount());
+        $recommend = array_merge($recommend, self::recommendVMCount());
 
         //Lets just return the first recommendation
         return [array_pop($recommend)];
-
     }
 
     private static function recommendVMCount()
@@ -439,83 +383,70 @@ class Node extends Model
 
         $nodes = $nodes->sortBy('vmcount');
 
-        foreach($nodes as $key => $node) {
+        foreach ($nodes as $key => $node) {
             if ($node->memory == 0 && $node->load == 0) {
                 unset($nodes[$key]);
             }
         }
 
-        foreach($nodes as $key => $node)
-        {
+        foreach ($nodes as $key => $node) {
             $totalVMs += $node->vmcount;
         }
         $vmcountAverage = ceil($totalVMs / count($nodes));
 
-        $nodeCount = ["add" => [], "remove" => []];
+        $nodeCount = ['add' => [], 'remove' => []];
 
-        foreach($nodes as $node)
-        {
+        foreach ($nodes as $node) {
             //Lets determine what action needs to be taken to bring all the nodes to the average vm count
 
             $diff = $vmcountAverage - $node->vmcount;
-            if($node->balancestatus == 'high')
-            {
+            if ($node->balancestatus == 'high') {
                 //We need to add vm's
-                $nodeCount["remove"][$node->name] = abs($diff);
-            } elseif ($node->balancestatus == 'low')
-            {
-                $nodeCount["add"][$node->name] = abs($diff);
+                $nodeCount['remove'][$node->name] = abs($diff);
+            } elseif ($node->balancestatus == 'low') {
+                $nodeCount['add'][$node->name] = abs($diff);
             }
         }
 
         $allreadyRemoved = [];
 
-        arsort($nodeCount['remove'],SORT_NUMERIC);
-        arsort($nodeCount['add'],SORT_NUMERIC);
-
+        arsort($nodeCount['remove'], SORT_NUMERIC);
+        arsort($nodeCount['add'], SORT_NUMERIC);
 
         //We known which machines need more machines and which need less machines;
         //Lets recommend which machines to add from the VMs from
-        foreach($nodeCount["add"] as $name => $count)
-        {
+        foreach ($nodeCount['add'] as $name => $count) {
             //First lets see if any nodes need this EXACT amount of VM's removed
-            $key = array_search($count, $nodeCount["remove"]);
-            if($key !== false)
-            {
+            $key = array_search($count, $nodeCount['remove']);
+            if ($key !== false) {
                 //We have an exact match
-                if(!isset($allreadyRemoved[$key])) {
-                    $recommend[] = "Remove " . $count . " from " . $key . " to " . $name;
+                if (! isset($allreadyRemoved[$key])) {
+                    $recommend[] = 'Remove '.$count.' from '.$key.' to '.$name;
                     $allreadyRemoved[$key] = true;
                 }
             } else {
                 //No one has an exact match
 
-                foreach($nodeCount["remove"] as $removeName => $removeCount)
-                {
-
-                    if($removeCount >= 3) {
+                foreach ($nodeCount['remove'] as $removeName => $removeCount) {
+                    if ($removeCount >= 3) {
                         $removeCount = 2;
                     }
 
-
-                    if($count == 0 || $removeCount == 0)
-                    {
+                    if ($count == 0 || $removeCount == 0) {
                         $count = 1;
-
                     }
 
-                    if($removeCount < $count && $removeCount != 0)
-                    {
-                        if(!isset($allreadyRemoved[$removeName])) {
-                            $recommend[] = 'Remove ' . $removeCount . ' from ' . $removeName . ' to ' . $name;
+                    if ($removeCount < $count && $removeCount != 0) {
+                        if (! isset($allreadyRemoved[$removeName])) {
+                            $recommend[] = 'Remove '.$removeCount.' from '.$removeName.' to '.$name;
                             //Update the node counts
-                            $nodeCount["remove"][$removeName] = $nodeCount["remove"][$removeName] - $removeCount;
+                            $nodeCount['remove'][$removeName] = $nodeCount['remove'][$removeName] - $removeCount;
                             $allreadyRemoved[$removeName] = true;
                         }
                     } else {
-                        if(!isset($allreadyRemoved[$removeName])) {
-                            $recommend[] = 'Remove ' . $count . ' from ' . $removeName . ' to ' . $name;
-                            $nodeCount["remove"][$removeName] = $nodeCount["remove"][$removeName] - $count;
+                        if (! isset($allreadyRemoved[$removeName])) {
+                            $recommend[] = 'Remove '.$count.' from '.$removeName.' to '.$name;
+                            $nodeCount['remove'][$removeName] = $nodeCount['remove'][$removeName] - $count;
                             $allreadyRemoved[$removeName] = true;
                         }
                     }
@@ -525,16 +456,12 @@ class Node extends Model
 
         $allreadyAdded = [];
 
-
-        if(empty($recommend))
-        {
-            foreach($nodeCount['remove'] as $name => $count)
-            {
-                foreach($nodes as $node)
-                {
-                    if($node->name !== $name && !isset($allreadyAdded[$node->name])) {
+        if (empty($recommend)) {
+            foreach ($nodeCount['remove'] as $name => $count) {
+                foreach ($nodes as $node) {
+                    if ($node->name !== $name && ! isset($allreadyAdded[$node->name])) {
                         if ($count > 0) {
-                            $recommend[] = 'Remove 1 from ' . $name . ' to ' . $node->name;
+                            $recommend[] = 'Remove 1 from '.$name.' to '.$node->name;
                             $allreadyRemoved[$name] = true;
                             $allreadyAdded[$name] = true;
                             $allreadyAdded[$node->name] = true;
@@ -547,7 +474,7 @@ class Node extends Model
 
         //If is one recommendation, lets just get rid of it.
         // We only want to do things if there are 2+ recommendations
-        if(count($recommend) === 1) {
+        if (count($recommend) === 1) {
             unset($recommend[0]);
         }
 
@@ -556,24 +483,22 @@ class Node extends Model
 
     public static function migrate($howmany, $from, $to)
     {
-
-        echo 'Migrate ' .$howmany. ' vms from ' .$from. ' to ' .$to. '<br/>';
+        echo 'Migrate '.$howmany.' vms from '.$from.' to '.$to.'<br/>';
 
         //Lets determine which vms we pick to migrate
 
-        $vms = new Collection(\Proxmox::get('/nodes/'.$from."/qemu")['data']);
+        $vms = new Collection(\Proxmox::get('/nodes/'.$from.'/qemu')['data']);
 
-        $vms = $vms->sortByDesc('cpu')->filter(function($i) {
+        $vms = $vms->sortByDesc('cpu')->filter(function ($i) {
             return $i['status'] == 'running';
         });
 
-
-        foreach($vms as $vm)
-        {
-            if(Map::isVMmapped($vm['name']) === false) {
-                $data = ['target' => $to, "online" => 1];
-                $url = '/nodes/' . $from . '/qemu/' . $vm['vmid'] . "/migrate";
+        foreach ($vms as $vm) {
+            if (Map::isVMmapped($vm['name']) === false) {
+                $data = ['target' => $to, 'online' => 1];
+                $url = '/nodes/'.$from.'/qemu/'.$vm['vmid'].'/migrate';
                 $result = \Proxmox::create($url, $data);
+
                 return true;
             }
         }
@@ -581,9 +506,8 @@ class Node extends Model
 
     public static function migrateVM($vmid, $from, $to)
     {
-
-        $data = ['target' => $to, "online" => 1];
-        $url = '/nodes/'.$from.'/qemu/'.$vmid."/migrate";
+        $data = ['target' => $to, 'online' => 1];
+        $url = '/nodes/'.$from.'/qemu/'.$vmid.'/migrate';
 
         $result = \Proxmox::create($url, $data);
 
@@ -592,12 +516,9 @@ class Node extends Model
 
     public static function getTasks()
     {
-
-        return array_reverse(array_sort(\Proxmox::get('cluster/tasks')['data'], function($value){
+        return array_reverse(Arr::sort(\Proxmox::get('cluster/tasks')['data'], function ($value) {
             return $value['starttime'];
         })
         );
-
     }
-
 }
