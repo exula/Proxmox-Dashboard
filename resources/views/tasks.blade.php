@@ -15,7 +15,11 @@
                 {{ $task['type'] }}
             </td>
             <td>
-                {!! $task['status'] or "<i class='fa fa-spin fa-spinner'></i>" !!}
+                @if(isset($task['status']))
+                    {{ $task['status'] }}
+                @else
+                    <i class='fa fa-spin fa-spinner'></i>
+                @endif
             </td>
             <td>
                 {{ \Carbon\Carbon::createFromTimestamp($task['starttime'])->diffForHumans() }}
