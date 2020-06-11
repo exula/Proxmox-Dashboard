@@ -48,4 +48,4 @@
             @endforeach
         </table>
     </div>
-@stop
+@endsection

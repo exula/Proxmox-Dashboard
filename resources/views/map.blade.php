@@ -31,4 +31,4 @@
         <li>{{ $rec }} </li>
     @endforeach
     </ul>
-@stop
+@endsection

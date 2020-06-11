@@ -42,4 +42,4 @@
 
     </script>
 
-@stop
+@endsection
