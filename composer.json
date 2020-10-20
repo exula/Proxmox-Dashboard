@@ -18,7 +18,7 @@
         "ext-json": "*",
         "fideloper/proxy": "^4.0",
         "h1g/proxmox": "dev-master",
-        "laravel/framework": "^6.13",
+        "laravel/framework": "^6.19",
         "laravel/tinker": "^2.0",
         "laravelcollective/html": "^6.0",
         "sentry/sentry-laravel": "^1.6"
