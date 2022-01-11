@@ -8,7 +8,7 @@
         <table class="table table-striped table-bordered">
             @foreach($virtualmachines  as $vm)
 
-                @if($vm->template != 1)
+                @if(isset($vm->template) && $vm->template != 1)
                     <tr>
                         <td>
                             @if($vm->status == 'running')
