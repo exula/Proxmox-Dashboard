@@ -23,7 +23,7 @@
         "sass-loader": "^8.0.2",
         "vue": "^2.6.11",
         "vue-template-compiler": "^2.6.11",
-        "postcss": "^8.2.8"
+        "postcss": "^7.0.36"
     },
     "dependencies": {
         "bootswatch": "^4.5.0",
