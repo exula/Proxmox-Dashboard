@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Map;
 use App\Node;
 use Illuminate\Http\Request;
-use Khill\Lavacharts\Lavacharts;
 
 class HomeController extends Controller
 {

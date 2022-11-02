@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Map;
-use App\Node;
 use Illuminate\Http\Request;
 
 class MapController extends Controller
