@@ -18,7 +18,7 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ App\Node::qemuLink($vm->vmid) }}" target="_blank">
+                            <a href="{{ App\Models\Node::qemuLink($vm->vmid) }}" target="_blank">
                                 {{ $vm->vmid }}
                             </a>
                         </td>
