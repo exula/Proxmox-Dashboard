@@ -51,7 +51,7 @@
     echo 'Installing Crontab file'
     cp {{ $new_release_dir }}/crontab /etc/cron.d/pve-migrations
 
-    service php7.1-fpm reload
+    service php8.1-fpm reload
 
     echo 'Spamming cache reset URL'
 
