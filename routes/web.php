@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MapController;
+use App\Http\Controllers\ProvisionController;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,22 +16,22 @@
 |
 */
 
-Route::get('/', ['uses' => 'HomeController@index', 'as' => 'dashboard'])->middleware('proxmoxauth');
+Route::get('/', [HomeController::class, 'index'])->name('dashboard')->middleware('proxmoxauth');
 
-Route::get('/dash', ['uses' => 'HomeController@dash', 'as' => 'dash']);
+Route::get('/dash', [HomeController::class, 'dash'])->name('dash');
 
-Route::get('/dashboardData', ['uses' => 'HomeController@dashboardData', 'as' => 'dashboardData']);
-Route::post('dorecommendations', ['uses' => 'HomeController@doRecommendations', 'as' => 'dorecommendations'])->middleware('proxmoxauth');
-Route::get('history', ['uses' => 'HomeController@history', 'as' => 'history'])->middleware('proxmoxauth');
-Route::get('tasks', ['uses' => 'HomeController@tasks', 'as' => 'tasks'])->middleware('proxmoxauth');
-Route::get('provision', ['uses' => 'ProvisionController@create', 'as' => 'provision'])->middleware('proxmoxauth');
-Route::post('provision', ['uses' => 'ProvisionController@store', 'as' => 'doProvision'])->middleware('proxmoxauth');
-Route::get('map', ['uses' => 'MapController@index', 'as' => 'map'])->middleware('proxmoxauth');
-Route::post('map/dorecommendations', ['uses' => 'MapController@doRecommendations', 'as' => 'map/dorecommendations'])->middleware('proxmoxauth');
+Route::get('/dashboardData', [HomeController::class, 'dashboardData'])->name('dashboardData');
+Route::post('dorecommendations', [HomeController::class, 'doRecommendations'])->name('dorecommendations')->middleware('proxmoxauth');
+Route::get('history', [HomeController::class, 'history'])->name('history')->middleware('proxmoxauth');
+Route::get('tasks', [HomeController::class, 'tasks'])->name('tasks')->middleware('proxmoxauth');
+Route::get('provision', [ProvisionController::class, 'create'])->name('provision')->middleware('proxmoxauth');
+Route::post('provision', [ProvisionController::class, 'store'])->name('doProvision')->middleware('proxmoxauth');
+Route::get('map', [MapController::class, 'index'])->name('map')->middleware('proxmoxauth');
+Route::post('map/dorecommendations', [MapController::class, 'doRecommendations'])->name('map/dorecommendations')->middleware('proxmoxauth');
 
-Route::get('virtualmachines', ['uses' => 'HomeController@virtualmachines', 'as' => 'virtualmachines'])->middleware('proxmoxauth');
+Route::get('virtualmachines', [HomeController::class, 'virtualmachines'])->name('virtualmachines')->middleware('proxmoxauth');
 
-Route::get('config', ['uses' => 'HomeController@config', 'as' => 'config'])->middleware('proxmoxauth');
+Route::get('config', [HomeController::class, 'config'])->name('config')->middleware('proxmoxauth');
 
 Route::post('/deploymentHook', function () {
     Log::info('Resetting opcache for '.php_sapi_name());
