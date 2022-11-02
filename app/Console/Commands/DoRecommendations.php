@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Map;
-use App\Node;
+use App\Models\Map;
+use App\Models\Node;
 use Illuminate\Console\Command;
 
 class DoRecommendations extends Command

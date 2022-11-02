@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Node;
+use App\Models\Node;
 use Illuminate\Http\Request;
 
 class ProvisionController extends Controller

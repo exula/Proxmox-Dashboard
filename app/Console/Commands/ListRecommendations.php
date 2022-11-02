@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Node;
+use App\Models\Node;
 use Illuminate\Console\Command;
 
 class ListRecommendations extends Command
