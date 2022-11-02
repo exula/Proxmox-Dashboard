@@ -14,14 +14,14 @@
         }
     ],
     "require": {
-        "php": "^7.2",
+        "php": "^8.0",
         "ext-json": "*",
         "fideloper/proxy": "^4.0",
         "h1g/proxmox": "dev-master",
         "laravel/framework": "^6.13",
         "laravel/tinker": "^2.0",
         "laravelcollective/html": "^6.0",
-        "sentry/sentry-laravel": "^1.6"
+        "sentry/sentry-laravel": "^2.14.2"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
