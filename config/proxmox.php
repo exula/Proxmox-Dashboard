@@ -31,7 +31,7 @@ return [
         'username' => getenv('PROXMOX_USER'),
         'password' => getenv('PROXMOX_PASS'),
         // sensible defaults for these two
-        'realm'    => getenv('PROXMOX_REALM') ?: 'pam',
-        'port'     => getenv('PROXMOX_PORT') ?: 8006,
+        'realm' => getenv('PROXMOX_REALM') ?: 'pam',
+        'port' => getenv('PROXMOX_PORT') ?: 8006,
     ],
 ];

@@ -5,12 +5,12 @@ namespace App;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use ProxmoxVE\Proxmox;
 
 class Node extends Model
 {
     //
     private static $data = [];
+
     private static $alreadyMigrated = [];
 
     public static function doRecommendations($recommendations)
@@ -121,9 +121,9 @@ class Node extends Model
 
         $points = [
             'midPoint' => $midPoint,
-            'lowpoint' =>  $midPoint - ($totalBalance * .015),
+            'lowpoint' => $midPoint - ($totalBalance * .015),
             'hightpoint' => $midPoint + ($totalBalance * .020),
-            ];
+        ];
 
         $collection->each(function ($n) use ($points) {
             if ($n->balancevalue <= $points['lowpoint']) {
