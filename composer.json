@@ -17,22 +17,21 @@
         "php": "^8.0",
         "ext-json": "*",
         "h1g/proxmox": "dev-master",
-        "laravel/framework": "^8.83",
-        "laravel/tinker": "^2.5",
-        "laravelcollective/html": "^6.2",
+        "laravel/framework": "^9.38",
+        "laravel/tinker": "^2.7",
+        "laravelcollective/html": "^6.3",
         "sentry/sentry-laravel": "^2.14.2",
-        "laravel/ui": "^3.1",
-        "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^6.3.1|^7.0.1"
+        "laravel/ui": "^3.3",
+        "guzzlehttp/guzzle": "^7.2"
     },
     "require-dev": {
         "roave/security-advisories": "dev-master",
-        "barryvdh/laravel-debugbar": "^3.5",
+        "barryvdh/laravel-debugbar": "^3.6",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^5.10",
+        "nunomaduro/collision": "^6.3",
         "phpunit/phpunit": "^9.5.10",
-        "facade/ignition": "^2.5",
-        "fakerphp/faker": "^1.9.1"
+        "fakerphp/faker": "^1.9.1",
+        "spatie/laravel-ignition": "^1.4"
     },
     "autoload": {
         "psr-4": {
