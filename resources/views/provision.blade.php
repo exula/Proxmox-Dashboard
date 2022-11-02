@@ -35,6 +35,10 @@
                 </select>
             </p>
 
+            <p>
+                <label for="notes" >Notes - These will be added into the PVE notes</label>
+                <textarea name="notes" id="notes"></textarea>
+            </p>
 
             <button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Provision</button>
 

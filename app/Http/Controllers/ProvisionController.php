@@ -28,13 +28,16 @@ class ProvisionController extends Controller
 
         $idData = \Proxmox::get('/cluster/nextid');
         $newID = $idData['data'];
+
+        $notes = $request->get('notes', '');
+
         $data = [
             'newid' => $newID,
             'name' => $name,
             'target' => $node,
             'full' => 1,
             'storage' => $storage,
-            'description' => 'Provisioned from dashboard: '.date('m/d/Y').'',
+            'description' => 'Provisioned from dashboard: '.date('m/d/Y').' -- NOTES: '.$notes,
         ];
 
         $url = '/nodes/'.$node.'/qemu/'.$template.'/clone';

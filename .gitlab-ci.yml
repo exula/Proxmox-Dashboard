@@ -11,7 +11,7 @@ stages:
 
 test:
   stage: test
-  image: edbizarro/gitlab-ci-pipeline-php:7.2-alpine
+  image: edbizarro/gitlab-ci-pipeline-php:7.4-alpine
   script:
     - composer install --prefer-dist --no-ansi --no-interaction --no-progress
     - cp .env.example .env
@@ -20,7 +20,7 @@ test:
 
 deploy_production:
   stage: deploy
-  image: edbizarro/gitlab-ci-pipeline-php:7.2-fpm
+  image: edbizarro/gitlab-ci-pipeline-php:7.4-fpm
   script:
     - composer global require "laravel/envoy=~1.0"
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
