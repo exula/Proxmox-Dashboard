@@ -264,7 +264,7 @@ class Node extends Model
 
             if (isset($nodeData['data'])) {
                 foreach ($nodeData['data'] as $vms) {
-                    if (isset($vms['template'])) {
+                    if (isset($vms['template']) && $vms['template'] === 1) {
                         $templates[$node.'::'.$vms['vmid']] = $vms['name'];
                     }
                 }
