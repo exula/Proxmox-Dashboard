@@ -1,7 +1,7 @@
 @servers(['web' => 'root@cad-proxmox-dashboard.rit.edu'])
 
 @setup
-    $url = 'https://cad-proxmox-dashboard.cias.rit.edu';
+    $url = 'https://cad-proxmox-dashboard.rit.edu';
     $repository = 'git@gitlab.cad.rit.edu:cadtech-support/proxmox-dashboard.git';
     $releases_dir = '/var/www/releases';
     $latest_dir = '/var/www/latest';
@@ -64,6 +64,8 @@
     -X POST \
     -H 'Content-Type: application/json' \
     -d '{"version": "{{ $release }}"}'
+
+    echo 'Sentry release completed'
 
 @endtask
 
