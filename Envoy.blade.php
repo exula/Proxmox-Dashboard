@@ -55,10 +55,10 @@
 
     echo 'Spamming cache reset URL'
 
-    curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
-    curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
-    curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
-    curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
+  #  curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
+  #  curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
+  #  curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
+  #  curl -sL -X POST {{ $url }}/deploymentHook > /dev/null
 
     curl https://sentry.cad.rit.edu/api/hooks/release/builtin/5/85709badad0be4f92f883619a4796b062c5fa612b4119b24fd2606dcfcf152b6/ \
     -X POST \
