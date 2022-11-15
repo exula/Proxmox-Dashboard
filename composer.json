@@ -17,7 +17,7 @@
         "php": "^8.0",
         "ext-json": "*",
         "h1g/proxmox": "dev-master",
-        "laravel/framework": "^9.38",
+        "laravel/framework": "^9.40",
         "laravel/tinker": "^2.7",
         "laravelcollective/html": "^6.3",
         "sentry/sentry-laravel": "^2.14.2",
